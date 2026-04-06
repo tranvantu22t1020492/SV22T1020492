@@ -1,7 +1,8 @@
 ﻿@model IEnumerable<SV22T1020492.Models.Sales.OrderDetailViewInfo>
 @{
     ViewBag.Title = "Giỏ hàng";
-    int orderID = ViewBag.OrderID ?? (Model.Any() ? Model.First().ProductID : 0);
+    // Lấy OrderID từ dữ liệu Model để đảm bảo tính chính xác khi cập nhật
+    int orderID = Model.Any() ? Model.First().OrderID : 0;
 }
 
 <style>
@@ -20,6 +21,34 @@
     .account-page-wrapper {
         align-items: start !important;
         padding-top: 0 !important;
+    }
+
+    /* Hiệu ứng rung nhẹ khi nhập số lượng sai */
+    input[type=number]:invalid {
+        border-color: #dc3545;
+        animation: shake 0.2s ease-in-out 0s 2;
+    }
+
+    @@keyframes shake {
+        0% {
+            transform: translateX(0);
+        }
+
+        25% {
+            transform: translateX(3px);
+        }
+
+        50% {
+            transform: translateX(-3px);
+        }
+
+        75% {
+            transform: translateX(3px);
+        }
+
+        100% {
+            transform: translateX(0);
+        }
     }
 </style>
 
@@ -68,8 +97,8 @@
                                 <td class="text-end">@item.SalePrice.ToString("N0") đ</td>
                                 <td class="text-end fw-bold text-primary">@item.TotalPrice.ToString("N0") đ</td>
                                 <td class="text-center pe-4">
-                                    @* THAY ĐỔI: Dùng Form để gửi POST tránh lỗi 405 *@
                                     <form action="/Cart/Remove" method="post" onsubmit="return confirm('Bạn có muốn xóa sản phẩm này?')">
+                                        @Html.AntiForgeryToken()
                                         <input type="hidden" name="productID" value="@item.ProductID" />
                                         <button type="submit" class="text-danger fs-5 border-0 bg-transparent p-0">
                                             <i class="fa fa-trash-alt"></i>
@@ -92,8 +121,8 @@
                         <i class="fa fa-reply me-2"></i>MUA TIẾP
                     </a>
 
-                    @* THAY ĐỔI: Dùng Form để gửi POST tránh lỗi 405 *@
                     <form action="/Cart/ClearCart" method="post" onsubmit="return confirm('Xóa sạch toàn bộ giỏ hàng?')">
+                        @Html.AntiForgeryToken()
                         <button type="submit" class="btn btn-light border px-4 rounded-3 text-muted">XÓA GIỎ</button>
                     </form>
 
@@ -117,22 +146,38 @@
 
 @section Scripts {
     <script>
+        /**
+         * Cập nhật số lượng sản phẩm trong giỏ
+         */
         function updateQuantity(orderId, productId, newQty) {
             if (newQty < 1) {
                 alert("Số lượng phải lớn hơn hoặc bằng 1");
                 location.reload();
                 return;
             }
+
+            // Sử dụng AJAX để cập nhật mà không làm mất vị trí trang hiện tại (nếu cần xử lý mượt hơn)
             $.ajax({
                 url: '/Cart/UpdateQuantity',
                 type: 'POST',
-                data: { productID: productId, quantity: newQty },
+                data: {
+                    productID: productId,
+                    quantity: newQty
+                },
                 success: function (response) {
+                    // Sau khi Controller xử lý RedirectToAction("Index"),
+                    // trang sẽ tự động tải lại với số tiền mới
                     location.reload();
+                },
+                error: function() {
+                    alert("Không thể cập nhật số lượng. Vui lòng thử lại.");
                 }
             });
         }
 
+        /**
+         * Xử lý đặt hàng
+         */
         function doCheckout() {
             if (!confirm("Xác nhận đặt hàng? Giỏ hàng sẽ được làm trống sau khi đặt thành công.")) return;
 
@@ -147,7 +192,9 @@
                         alert("Có lỗi xảy ra khi thực hiện đặt hàng.");
                     }
                 },
-                error: function() { alert("Lỗi kết nối."); }
+                error: function() {
+                    alert("Lỗi kết nối máy chủ.");
+                }
             });
         }
     </script>

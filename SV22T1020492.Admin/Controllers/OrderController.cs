@@ -2,6 +2,7 @@
 using SV22T1020492.BusinessLayers;
 using SV22T1020492.Models.Catalog;
 using SV22T1020492.Models.Common;
+using SV22T1020492.Models.Partner;
 using SV22T1020492.Models.Sales;
 
 namespace SV22T1020492.Admin.Controllers
@@ -198,15 +199,19 @@ namespace SV22T1020492.Admin.Controllers
 
         public async Task<IActionResult> Cancel(int id)
         {
-            var details = await SalesDataService.ListDetailsAsync(id);
-            foreach (var item in details) await SalesDataService.DeleteDetailAsync(id, item.ProductID);
-            bool result = await SalesDataService.DeleteOrderAsync(id);
+            // Gọi Service để cập nhật Status thành -1 (Cancelled)
+            // Lưu ý: Đảm bảo Business Layer của bạn có hàm CancelOrderAsync
+            bool result = await SalesDataService.CancelOrderAsync(id);
+
             if (result)
             {
-                TempData["Message"] = "Đơn hàng đã được hủy và xóa khỏi hệ thống.";
-                return RedirectToAction("Index");
+                TempData["Message"] = "Đơn hàng đã được chuyển sang trạng thái bị hủy.";
             }
-            TempData["Error"] = "Không thể thực hiện hủy/xóa đơn hàng này.";
+            else
+            {
+                TempData["Error"] = "Không thể hủy đơn hàng này ở trạng thái hiện tại.";
+            }
+
             return RedirectToAction("Detail", new { id });
         }
 
@@ -274,10 +279,10 @@ namespace SV22T1020492.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> InitOrder(string customerName, string deliveryProvince, string deliveryAddress)
         {
-            // 1. Lấy giỏ hàng từ Session của BẠN (Dùng SHOPPING_CART thay vì CART_KEY)
-            var cart = ApplicationContext.GetSessionData<List<OrderDetailViewInfo>>(SHOPPING_CART);
+            // 1. Lấy giỏ hàng từ Session (Sử dụng đúng biến SHOPPING_CART của bạn)
+            var cartData = ApplicationContext.GetSessionData<List<OrderDetailViewInfo>>(SHOPPING_CART);
 
-            if (cart == null || cart.Count == 0)
+            if (cartData == null || cartData.Count == 0)
             {
                 TempData["Error"] = "Giỏ hàng trống, không thể lập đơn hàng.";
                 return RedirectToAction("Create");
@@ -289,40 +294,58 @@ namespace SV22T1020492.Admin.Controllers
                 return RedirectToAction("Create");
             }
 
-            // 2. LOGIC TÌM KHÁCH HÀNG: Kiểm tra xem tên khách hàng đã tồn tại trong DB chưa
-            var input = new PaginationSearchInput()
-            {
-                Page = 1,
-                PageSize = 100,
-                SearchValue = customerName ?? ""
-            };
-
-            var customersResult = await PartnerDataService.ListCustomersAsync(input);
-
-            // Tìm khách hàng đầu tiên khớp tên (không phân biệt hoa thường)
+            // 2. Tìm khách hàng theo tên
+            var searchInput = new PaginationSearchInput() { Page = 1, PageSize = 10, SearchValue = customerName.Trim() };
+            var customersResult = await PartnerDataService.ListCustomersAsync(searchInput);
             var customer = customersResult.DataItems.FirstOrDefault(c =>
-                c.CustomerName.Trim().ToLower() == customerName.Trim().ToLower());
+                c.CustomerName.Trim().Equals(customerName.Trim(), StringComparison.OrdinalIgnoreCase));
 
-            int? customerID = customer?.CustomerID; // Nếu tìm thấy thì lấy ID, không thì null
+            int customerID = 0;
 
-            // 3. Chuẩn bị dữ liệu mặt hàng
-            int employeeID = 1; // Giả sử ID nhân viên xử lý là 1
-            var orderDetails = cart.Select(item => new OrderDetail()
+            if (customer != null)
+            {
+                customerID = customer.CustomerID;
+            }
+            else
+            {
+                // 3. Nếu không có: Tự động thêm khách hàng mới để tránh lỗi Foreign Key
+                // Đã loại bỏ 'IsActive' để tránh lỗi định nghĩa
+                var newCustomer = new Customer()
+                {
+                    CustomerName = customerName,
+                    ContactName = customerName, // Tạm lấy tên khách làm tên liên hệ
+                    Province = deliveryProvince,
+                    Address = deliveryAddress,
+                    Email = "",
+                    Phone = ""
+                    // Nếu Model có IsWorking thì thêm: IsWorking = true
+                };
+
+                // Gọi hàm Add để lấy ID mới tạo từ DB
+                customerID = await PartnerDataService.AddCustomerAsync(newCustomer);
+            }
+
+            // 4. Chuẩn bị danh sách mặt hàng (Sử dụng cartData đã lấy ở bước 1)
+            int employeeID = 1;
+            var orderDetails = cartData.Select(item => new OrderDetail()
             {
                 ProductID = item.ProductID,
                 Quantity = item.Quantity,
                 SalePrice = item.SalePrice
             }).ToList();
 
-            // 4. Gọi Service để lưu vào DB (OrderID sẽ tự động cộng 1 tại đây)
+            // 5. Gọi Service lập đơn hàng
             int orderID = await SalesDataService.InitOrderAsync(employeeID, customerID, deliveryProvince, deliveryAddress, orderDetails);
 
             if (orderID > 0)
             {
-                // 5. THÀNH CÔNG: Xóa giỏ hàng Session của bạn
+                // Xóa giỏ hàng sau khi thành công
                 ApplicationContext.SetSessionData(SHOPPING_CART, new List<OrderDetailViewInfo>());
 
-                TempData["Message"] = $"Đã lập đơn hàng #{orderID} thành công cho khách hàng {customerName}.";
+                // Reset bộ lọc để thấy đơn mới nhất
+                ApplicationContext.SetSessionData(SEARCH_ORDER, new OrderSearchInput() { Page = 1, PageSize = PAGESIZE, Status = 0 });
+
+                TempData["Message"] = $"Đã lập đơn hàng #{orderID} thành công cho khách hàng: {customerName}.";
                 return RedirectToAction("Index");
             }
 

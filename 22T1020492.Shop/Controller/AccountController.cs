@@ -40,35 +40,78 @@ namespace SV22T1020492.Shop.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Register(AccountCustomer model, string confirmPassword)
         {
-            // 1. Kiểm tra mật khẩu khớp
-            if (model.Password != confirmPassword)
+            // 1. Kiểm tra các trường bắt buộc
+            if (string.IsNullOrWhiteSpace(model.CustomerName))
+                ModelState.AddModelError("CustomerName", "Họ tên khách hàng không được để trống.");
+
+            if (string.IsNullOrWhiteSpace(model.Email))
+                ModelState.AddModelError("Email", "Email không được để trống.");
+
+            if (string.IsNullOrWhiteSpace(model.Phone))
+                ModelState.AddModelError("Phone", "Số điện thoại không được để trống.");
+
+            if (string.IsNullOrWhiteSpace(model.Province))
+                ModelState.AddModelError("Province", "Vui lòng chọn Tỉnh/Thành phố.");
+
+            if (string.IsNullOrWhiteSpace(model.Address))
+                ModelState.AddModelError("Address", "Địa chỉ không được để trống.");
+
+            // 2. Kiểm tra định dạng Email
+            if (!string.IsNullOrEmpty(model.Email))
             {
-                ModelState.AddModelError("confirmPassword", "Xác nhận mật khẩu không khớp.");
+                try
+                {
+                    var addr = new System.Net.Mail.MailAddress(model.Email);
+                    if (addr.Address != model.Email) ModelState.AddModelError("Email", "Email không đúng định dạng.");
+                }
+                catch
+                {
+                    ModelState.AddModelError("Email", "Email không đúng định dạng.");
+                }
             }
 
+            // 3. Kiểm tra mật khẩu
+            if (string.IsNullOrEmpty(model.Password))
+            {
+                ModelState.AddModelError("Password", "Mật khẩu không được để trống.");
+            }
+            else if (model.Password.Length < 6)
+            {
+                ModelState.AddModelError("Password", "Mật khẩu phải có ít nhất 6 ký tự.");
+            }
+
+            if (model.Password != confirmPassword)
+            {
+                ModelState.AddModelError("confirmPassword", "Xác nhận mật khẩu không trùng khớp.");
+            }
+
+            // 4. Thực hiện đăng ký nếu không có lỗi nhập liệu
             if (ModelState.IsValid)
             {
-                // 2. Mã hóa mật khẩu trước khi gửi xuống Service
-                // LƯU Ý: Nếu trong CustomerAccountService.Register đã có MD5 thì hãy comment dòng dưới lại.
-                model.Password = ToMD5(model.Password);
+                string originalPassword = model.Password;
+                model.Password = ToMD5(originalPassword);
 
-                // 3. Gọi Service lưu vào DB
+                // Service trả về -1 nếu trùng Email
                 int result = CustomerAccountService.Register(model);
 
                 if (result == -1)
                 {
                     ModelState.AddModelError("Email", "Email này đã được sử dụng bởi một tài khoản khác.");
-                    return View(model);
                 }
-
-                if (result > 0)
+                else if (result > 0)
                 {
                     TempData["Message"] = "Đăng ký tài khoản thành công! Vui lòng đăng nhập.";
                     return RedirectToAction("Login");
                 }
+                else
+                {
+                    ModelState.AddModelError("", "Đăng ký thất bại. Vui lòng liên hệ quản trị viên.");
+                }
 
-                ModelState.AddModelError("", "Đăng ký thất bại do lỗi hệ thống (DAL chưa thực hiện lưu).");
+                // Trả lại mật khẩu gốc để người dùng không phải nhập lại khi có lỗi server
+                model.Password = originalPassword;
             }
+
             return View(model);
         }
 
@@ -77,38 +120,50 @@ namespace SV22T1020492.Shop.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(string email, string password) // Thêm async Task vào đây
+        public async Task<IActionResult> Login(string email, string password)
         {
-            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
+            // 1. Kiểm tra để báo lỗi trống cả hai trường cùng lúc
+            if (string.IsNullOrWhiteSpace(email))
             {
-                ModelState.AddModelError("", "Vui lòng nhập đầy đủ Email và Mật khẩu.");
+                ModelState.AddModelError("Email", "Vui lòng nhập Email.");
+            }
+
+            if (string.IsNullOrWhiteSpace(password))
+            {
+                ModelState.AddModelError("Password", "Vui lòng nhập Mật khẩu.");
+            }
+
+            // Nếu có lỗi nhập liệu thì trả về View ngay
+            if (!ModelState.IsValid)
+            {
                 return View();
             }
 
-            // Mã hóa mật khẩu người dùng nhập để so sánh với mật khẩu đã mã hóa trong DB
+            // 2. Kiểm tra logic đăng nhập
             string hashedPass = ToMD5(password);
-
-            // Gọi Service Login
             var user = CustomerAccountService.Login(email, hashedPass);
 
             if (user == null)
             {
                 ModelState.AddModelError("", "Email hoặc mật khẩu không chính xác.");
-                return View();
             }
-
-            if (user.IsLocked)
+            else if (user.IsLocked)
             {
                 ModelState.AddModelError("", "Tài khoản của bạn hiện đang bị khóa.");
+            }
+
+            // 3. Kiểm tra lại ModelState sau khi gọi Service
+            if (!ModelState.IsValid)
+            {
                 return View();
             }
 
-            // --- LƯU SESSION ---
+            // --- ĐĂNG NHẬP THÀNH CÔNG ---
             HttpContext.Session.SetInt32("UserId", user.CustomerID);
             HttpContext.Session.SetString("UserDisplayName", user.ContactName ?? "Khách hàng");
             HttpContext.Session.SetString("UserName", user.CustomerName ?? "");
 
-            // Đợi lưu Session xong mới chuyển trang để Header cập nhật kịp số lượng giỏ hàng
+            // Đợi lưu Session xong mới chuyển trang
             await HttpContext.Session.CommitAsync();
 
             return RedirectToAction("Index", "Home");
@@ -150,9 +205,32 @@ namespace SV22T1020492.Shop.Controllers
             int? customerId = HttpContext.Session.GetInt32("UserId");
             if (customerId == null) return RedirectToAction("Login");
 
-            if (newPassword != confirmPassword)
+            // 1. Kiểm tra các trường không được để trống
+            if (string.IsNullOrWhiteSpace(oldPassword))
+                ModelState.AddModelError("oldPassword", "Vui lòng nhập mật khẩu hiện tại.");
+
+            if (string.IsNullOrWhiteSpace(newPassword))
+                ModelState.AddModelError("newPassword", "Vui lòng nhập mật khẩu mới.");
+
+            if (string.IsNullOrWhiteSpace(confirmPassword))
+                ModelState.AddModelError("confirmPassword", "Vui lòng xác nhận mật khẩu mới.");
+
+            // 2. Kiểm tra độ dài mật khẩu mới (giống lúc đăng ký)
+            if (!string.IsNullOrEmpty(newPassword) && newPassword.Length < 6)
             {
-                ModelState.AddModelError("", "Xác nhận mật khẩu mới không khớp.");
+                ModelState.AddModelError("newPassword", "Mật khẩu mới phải có ít nhất 6 ký tự.");
+            }
+
+            // 3. Kiểm tra mật khẩu mới và xác nhận mật khẩu có khớp nhau không
+            if (!string.IsNullOrEmpty(newPassword) && newPassword != confirmPassword)
+            {
+                ModelState.AddModelError("confirmPassword", "Xác nhận mật khẩu mới không khớp.");
+            }
+
+            // 4. Kiểm tra mật khẩu mới không được trùng với mật khẩu cũ (tùy chọn nhưng nên có)
+            if (!string.IsNullOrEmpty(oldPassword) && oldPassword == newPassword)
+            {
+                ModelState.AddModelError("newPassword", "Mật khẩu mới không được trùng với mật khẩu hiện tại.");
             }
 
             if (ModelState.IsValid)
@@ -160,21 +238,23 @@ namespace SV22T1020492.Shop.Controllers
                 string hashedOld = ToMD5(oldPassword);
                 string hashedNew = ToMD5(newPassword);
 
-                // Gọi Service (nhớ cập nhật DAL như hướng dẫn trước đó)
+                // Gọi Service xử lý dưới Database
                 bool result = CustomerAccountService.ChangePassword(customerId.Value, hashedOld, hashedNew);
 
                 if (result)
                 {
                     TempData["Message"] = "Đổi mật khẩu thành công!";
-                    return RedirectToAction("Profile"); // Thành công thì quay về Profile để xem thông báo
+                    return RedirectToAction("Profile");
                 }
                 else
                 {
-                    ModelState.AddModelError("", "Mật khẩu hiện tại không chính xác.");
+                    // Thường là do mật khẩu cũ nhập sai
+                    ModelState.AddModelError("oldPassword", "Mật khẩu hiện tại không chính xác.");
                 }
             }
 
-            return View(); // Nếu có lỗi thì ở lại trang ChangePassword để hiện thông báo lỗi
+            // Nếu có lỗi thì ở lại trang để hiện thông báo
+            return View();
         }
         [HttpGet]
         public IActionResult EditProfile()

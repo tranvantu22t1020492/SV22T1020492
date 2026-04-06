@@ -113,5 +113,7 @@ namespace SV22T1020492.Shop.Controllers
             });
             return result.DataItems.Count(x => x.CustomerID == userId.Value && (int)x.Status != 0);
         }
+
+
     }
 }

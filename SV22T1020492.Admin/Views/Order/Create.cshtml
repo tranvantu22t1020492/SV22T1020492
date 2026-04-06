@@ -137,26 +137,32 @@
 
         // HÀM THÊM VÀO GIỎ (Phải dùng trong SearchProduct.cshtml cho nút Thêm)
         function ajaxAddToCart(form) {
-            // Lấy dữ liệu từ form và ép kiểu để đảm bảo an toàn
             var dto = {
-                ProductID: $(form).find("input[name='ProductID']").val(),
+                ProductID: parseInt($(form).find("input[name='ProductID']").val()) || 0,
                 ProductName: $(form).find("input[name='ProductName']").val(),
                 Photo: $(form).find("input[name='Photo']").val(),
                 Unit: $(form).find("input[name='Unit']").val(),
-                SalePrice: parseFloat($(form).find("input[name='SalePrice']").val()), // Chuyển về số thực
-                Quantity: parseInt($(form).find("input[name='Quantity']").val())     // Chuyển về số nguyên
+                // Đảm bảo lấy giá trị số, thay thế dấu phẩy nếu có (định dạng VN)
+                SalePrice: parseFloat($(form).find("input[name='SalePrice']").val().replace(',', '.')) || 0,
+                Quantity: parseInt($(form).find("input[name='Quantity']").val()) || 1
             };
+
+            if (dto.ProductID <= 0) {
+                alert("Sản phẩm không hợp lệ");
+                return;
+            }
 
             $.ajax({
                 url: "@Url.Action("AddToCart", "Order")",
                 type: "POST",
-                data: dto, // Gửi object đã được xử lý
+                data: dto,
                 success: function (html) {
                     $("#cart-container").html(html);
                 },
                 error: function (xhr) {
-                    // Hiển thị lỗi chi tiết từ server nếu có
-                    alert("Lỗi: " + xhr.responseText);
+                    // Xem lỗi chi tiết từ Server trả về
+                    console.error(xhr.responseText);
+                    alert("Không thể thêm vào giỏ: " + xhr.responseText);
                 }
             });
         }

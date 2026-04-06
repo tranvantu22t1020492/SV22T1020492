@@ -20,7 +20,11 @@
                     <li><a class="dropdown-item" href="~/Order/Accept/@Model.OrderID">Duyệt đơn hàng</a></li>
                     <li><a class="dropdown-item text-danger" href="~/Order/Reject/@Model.OrderID">Từ chối đơn hàng</a></li>
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item text-danger" href="~/Order/Cancel/@Model.OrderID" onclick="return confirm('Hủy đơn hàng sẽ xóa hoàn toàn đơn này khỏi hệ thống. Xác nhận?')">Hủy đơn hàng</a></li>
+                    <a href="~/Order/Cancel/@Model.OrderID"
+                       class="btn btn-danger"
+                       onclick="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này không?')">
+                        <i class="bi bi-x-circle"></i> Hủy đơn hàng
+                    </a>
                 }
                 else if (Model.Status == OrderStatusEnum.Accepted)
                 {
@@ -173,17 +177,19 @@
         }
 </style>
 
-@section Styles {
+@section Scripts {
+    <script>
         $(document).ready(function () {
-        $(".open-modal").click(function (e) {
-            e.preventDefault();
-            var url = $(this).attr("href");
+            $(".open-modal").click(function (e) {
+                e.preventDefault();
+                var url = $(this).attr("href");
 
-            // Giả sử bạn có một <div id="modal-container" class="modal fade"></div> trong Layout
-            $.get(url, function (data) {
-                $("#modal-container").html(data);
-                $("#modal-container").modal("show");
+                // Gọi AJAX để lấy nội dung partial view và hiển thị modal
+                $.get(url, function (data) {
+                    $("#modal-container").html(data);
+                    $("#modal-container").modal("show");
+                });
             });
         });
-    });
+    </script>
 }

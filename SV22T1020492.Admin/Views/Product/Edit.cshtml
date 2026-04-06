@@ -31,7 +31,6 @@
             </div>
 
             <div class="card-body">
-                <!-- enctype="multipart/form-data" bắt buộc khi có upload file -->
                 <form id="formEdit" method="post" enctype="multipart/form-data" action="~/Product/SaveData">
 
                     <input type="hidden" asp-for="ProductID" />
@@ -49,18 +48,20 @@
                     <div class="row mb-3">
                         <label class="col-sm-3 col-form-label">Loại hàng</label>
                         <div class="col-sm-3">
-                            <!-- asp-items dùng SelectListHelper để lấy danh sách loại hàng từ DB -->
                             <select class="form-select" asp-for="CategoryID"
                                     asp-items="await SelectListHelper.Categories()">
                             </select>
+                            @* Thêm thông báo lỗi cho Loại hàng *@
+                            <span asp-validation-for="CategoryID" class="text-danger"></span>
                         </div>
 
                         <label class="col-sm-2 col-form-label text-end">Nhà cung cấp</label>
                         <div class="col-sm-4">
-                            <!-- asp-items dùng SelectListHelper để lấy danh sách nhà cung cấp từ DB -->
                             <select class="form-select" asp-for="SupplierID"
                                     asp-items="await SelectListHelper.Suppliers()">
                             </select>
+                            @* Thêm thông báo lỗi cho Nhà cung cấp *@
+                            <span asp-validation-for="SupplierID" class="text-danger"></span>
                         </div>
                     </div>
 
@@ -75,11 +76,9 @@
 
                         <label class="col-sm-2 col-form-label text-end">Giá</label>
                         <div class="col-sm-4">
-                            <!-- money-input: AutoNumeric sẽ format số, unformat trước khi submit -->
                             <input type="text" asp-for="Price"
                                    class="form-control money-input"
-                                   placeholder="Giá bán"
-                                   min="0" />
+                                   placeholder="Giá bán" />
                             <span asp-validation-for="Price" class="text-danger"></span>
                         </div>
                     </div>
@@ -101,13 +100,10 @@
                     <div class="row mb-3">
                         <label class="col-sm-3 col-form-label">Ảnh</label>
                         <div class="col-sm-9">
-                            <!-- Giữ lại tên file ảnh cũ khi không upload ảnh mới -->
                             <input type="hidden" asp-for="Photo" />
-                            <!-- name="uploadPhoto" để controller nhận qua IFormFile uploadPhoto -->
                             <input type="file" name="uploadPhoto"
                                    class="form-control"
                                    accept="image/*"
-                                   data-img-preview="imgPreview"
                                    onchange="previewImage(this)" />
                             <div class="mt-2">
                                 <img id="imgPreview"

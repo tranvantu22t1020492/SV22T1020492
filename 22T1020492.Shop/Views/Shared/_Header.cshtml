@@ -192,9 +192,18 @@
         updateCartBadge();
 
         $('#headerSearchForm').on('submit', function (e) {
+            // Lấy giá trị
             var min = parseFloat($('#minPrice').val()) || 0;
             var max = parseFloat($('#maxPrice').val()) || 0;
 
+            // 1. Kiểm tra số âm
+            if (min < 0 || max < 0) {
+                alert("Giá sản phẩm không được là số âm!");
+                e.preventDefault();
+                return false;
+            }
+
+            // 2. Kiểm tra logic: Giá đến phải lớn hơn giá từ (nếu có nhập giá đến)
             if (max > 0 && max < min) {
                 alert("Giá đến phải lớn hơn hoặc bằng giá từ!");
                 e.preventDefault();

@@ -89,9 +89,22 @@ namespace SV22T1020492.Shop.Controllers
                 if (cartOrder != null)
                 {
                     if (quantity > 0)
-                        await SalesDataService.UpdateDetailAsync(new OrderDetail { OrderID = cartOrder.OrderID, ProductID = productID, Quantity = quantity });
+                    {
+                        var product = await CatalogDataService.GetProductAsync(productID);
+                        decimal currentPrice = product != null ? product.Price : 0;
+
+                        await SalesDataService.UpdateDetailAsync(new OrderDetail
+                        {
+                            OrderID = cartOrder.OrderID,
+                            ProductID = productID,
+                            Quantity = quantity,
+                            SalePrice = currentPrice 
+                        });
+                    }
                     else
+                    {
                         await SalesDataService.DeleteDetailAsync(cartOrder.OrderID, productID);
+                    }
                 }
             }
             return RedirectToAction("Index");

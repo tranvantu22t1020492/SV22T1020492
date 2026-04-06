@@ -122,46 +122,61 @@ namespace SV22T1020492.Admin.Controllers
             {
                 ViewBag.Title = data.ProductID == 0 ? "Bổ sung Mặt hàng" : "Cập nhật thông tin Mặt hàng";
 
-                // Kiểm tra dữ liệu đầu vào
+                // 1. Kiểm tra các trường văn bản
                 if (string.IsNullOrWhiteSpace(data.ProductName))
                     ModelState.AddModelError(nameof(data.ProductName), "Vui lòng nhập tên mặt hàng");
+
                 if (string.IsNullOrWhiteSpace(data.Unit))
                     ModelState.AddModelError(nameof(data.Unit), "Vui lòng nhập đơn vị tính");
-                if (data.Price < 0)
-                    ModelState.AddModelError(nameof(data.Price), "Giá không được âm");
 
+                // 2. Kiểm tra Loại hàng và Nhà cung cấp (đã thêm từ bước trước)
+                if (data.CategoryID <= 0)
+                    ModelState.AddModelError(nameof(data.CategoryID), "Vui lòng chọn loại hàng");
+
+                if (data.SupplierID <= 0)
+                    ModelState.AddModelError(nameof(data.SupplierID), "Vui lòng chọn nhà cung cấp");
+
+                // 3. Cập nhật điều kiện: GIÁ PHẢI LỚN HƠN 0
+                if (data.Price <= 0)
+                    ModelState.AddModelError(nameof(data.Price), "Giá mặt hàng phải lớn hơn 0");
+
+                // Nếu có lỗi dữ liệu đầu vào
                 if (!ModelState.IsValid)
+                {
+                    // Đảm bảo load lại các danh sách phụ trợ để View không bị lỗi hiển thị
+                    ViewBag.ProductID = data.ProductID;
+                    ViewBag.PhotoList = await CatalogDataService.ListPhotosAsync(data.ProductID) ?? new List<ProductPhoto>();
+                    ViewBag.AttributeList = await CatalogDataService.ListAttributesAsync(data.ProductID) ?? new List<ProductAttribute>();
                     return View("Edit", data);
+                }
 
-                // Xử lý upload ảnh đại diện
+                // 4. Xử lý upload ảnh (Giữ nguyên logic của bạn)
                 if (uploadPhoto != null)
                 {
                     var fileName = $"{Guid.NewGuid()}{Path.GetExtension(uploadPhoto.FileName)}";
                     var folder = "products";
                     var filePath = Path.Combine(ApplicationContext.WWWRootPath, "images", folder, fileName);
 
-                    // Dùng khối using để đảm bảo file được ghi xong và ĐÓNG LẠI hoàn toàn
                     using (var stream = new FileStream(filePath, FileMode.Create))
                     {
                         await uploadPhoto.CopyToAsync(stream);
                     }
 
-                    // CHỈ GỌI SYNC KHI FILE ĐÃ ĐÓNG (nằm ngoài khối using)
                     ImageSyncHelper.SyncToShop(fileName, folder);
-
                     data.Photo = fileName;
                 }
 
-                // Tiền xử lý dữ liệu
-                if (string.IsNullOrEmpty(data.Photo)) data.Photo = "";
-                if (string.IsNullOrEmpty(data.ProductDescription)) data.ProductDescription = "";
+                // Tiền xử lý dữ liệu trước khi lưu
+                data.Photo ??= "";
+                data.ProductDescription ??= "";
 
-                // Lưu vào database
+                // 5. Lưu vào database
                 if (data.ProductID == 0)
                     await CatalogDataService.AddProductAsync(data);
                 else
                     await CatalogDataService.UpdateProductAsync(data);
 
+                // Reset Session tìm kiếm về trang 1 với tên sản phẩm vừa sửa/tạo
                 ApplicationContext.SetSessionData(SEARCH_PRODUCT, new ProductSearchInput()
                 {
                     Page = 1,
@@ -172,11 +187,11 @@ namespace SV22T1020492.Admin.Controllers
                     MinPrice = 0,
                     MaxPrice = 0
                 });
+
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
-                // TODO: Ghi log lỗi
                 ModelState.AddModelError(string.Empty, ex.Message);
                 return View("Edit", data);
             }

@@ -92,12 +92,13 @@
 
             @if (!ViewData.ModelState.IsValid)
             {
-                <div class="alert alert-danger small">
-                    @Html.ValidationSummary(true, "")
+                <div class="alert alert-danger small shadow-sm border-0 mb-3">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    @* HIỆN TẤT CẢ LỖI CHI TIẾT *@
+                    @Html.ValidationSummary(false, "")
                 </div>
             }
 
-            <!-- EMAIL -->
             <div class="mb-3">
                 <label class="form-label fw-bold">Email</label>
                 <input type="email"
@@ -107,7 +108,6 @@
                        required autofocus>
             </div>
 
-            <!-- PASSWORD -->
             <div class="mb-3">
                 <label class="form-label fw-bold">Mật khẩu</label>
                 <input type="password"
@@ -117,7 +117,6 @@
                        required>
             </div>
 
-            <!-- BUTTON -->
             <div class="d-grid gap-2 mt-4">
                 <button type="submit"
                         class="btn btn-primary btn-lg fw-bold">
@@ -125,7 +124,6 @@
                 </button>
             </div>
 
-            <!-- LINK -->
             <div class="text-center mt-3">
                 <span>Chưa có tài khoản? </span>
                 <a href="/Account/Register" class="fw-bold text-decoration-none">
