@@ -3,9 +3,11 @@ using SV22T1020492.BusinessLayers;
 using SV22T1020492.Models.Common;
 using SV22T1020492.Models.HR;
 using SV22T1020492.DataLayers;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SV22T1020492.Admin.Controllers
 {
+    [Authorize(Roles = $"{WebUserRoles.Administrator}")]
     public class EmployeeController : Controller
     {
         public const string SEARCHS_EMPLOYEE = "SearchEmployee";

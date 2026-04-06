@@ -1,0 +1,52 @@
+﻿@model IEnumerable<SV22T1020492.Models.Sales.OrderDetailViewInfo>
+@{
+    Layout = null;
+    decimal total = 0;
+}
+
+<div class="table-responsive">
+    <table class="table table-sm table-bordered table-striped">
+        <thead class="bg-primary text-white text-center">
+            <tr>
+                <th>Tên mặt hàng</th>
+                <th>ĐVT</th>
+                <th>SL</th>
+                <th>Giá</th>
+                <th>Thành tiền</th>
+                <th style="width:40px"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                foreach (var item in Model)
+                {
+                    total += item.TotalPrice;
+                    <tr>
+                        <td>@item.ProductName</td>
+                        <td class="text-center">@item.Unit</td>
+                        <td class="text-center">@item.Quantity</td>
+                        <td class="text-end">@item.SalePrice.ToString("N0")</td>
+                        <td class="text-end">@item.TotalPrice.ToString("N0")</td>
+                        <td class="text-center">
+                            <a href="javascript:;" onclick="removeFromCart(@item.ProductID)" class="text-danger">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr><td colspan="6" class="text-center text-muted">Giỏ hàng trống</td></tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr class="fw-bold text-danger">
+                <td colspan="4" class="text-end">Tổng cộng:</td>
+                <td class="text-end">@total.ToString("N0")</td>
+                <td></td>
+            </tr>
+        </tfoot>
+    </table>
+</div>

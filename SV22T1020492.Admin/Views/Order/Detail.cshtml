@@ -162,16 +162,28 @@
         </table>
     </div>
 </div>
+<style>
+    .card-body .row {
+        border-bottom: 1px dotted #646464;
+        padding: 5px 0;
+    }
+
+        .card-body .row:last-child {
+            border-bottom: none;
+        }
+</style>
 
 @section Styles {
-    <style>
-        .card-body .row {
-            border-bottom: 1px dotted #646464;
-            padding: 5px 0;
-        }
+        $(document).ready(function () {
+        $(".open-modal").click(function (e) {
+            e.preventDefault();
+            var url = $(this).attr("href");
 
-            .card-body .row:last-child {
-                border-bottom: none;
-            }
-    </style>
+            // Giả sử bạn có một <div id="modal-container" class="modal fade"></div> trong Layout
+            $.get(url, function (data) {
+                $("#modal-container").html(data);
+                $("#modal-container").modal("show");
+            });
+        });
+    });
 }

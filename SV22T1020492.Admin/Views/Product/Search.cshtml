@@ -3,92 +3,76 @@
     Layout = null;
 }
 
-<div class="mb-2 text-muted">
-    Danh sách này có <strong>@Model.RowCount</strong> mặt hàng
-</div>
+@if (Model.DataItems != null && Model.DataItems.Any())
+{
+    <div class="mb-2 text-muted">
+        Danh sách này có <strong>@Model.RowCount</strong> mặt hàng
+    </div>
 
-<div class="card">
-    <div class="card-body p-1">
-        <table class="table table-bordered table-hover mb-0 align-middle">
-            <thead class="table-secondary">
-                <tr>
-                    <th style="width:80px;">Ảnh</th>
-                    <th>Mặt hàng</th>
-                    <th style="width:120px;">Đơn vị</th>
-                    <th style="width:120px;">Giá</th>
-                    <th class="text-center" style="width:140px;">Trạng thái</th>
-                    <th class="text-center" style="width:100px;">Thao tác</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model.DataItems)
-                {
+    <div class="card">
+        <div class="card-body p-1">
+            <table class="table table-bordered table-hover mb-0 align-middle">
+                <thead class="table-secondary">
                     <tr>
-                        <td class="text-center">
-                            <img src="~/images/products/@item.Photo"
-                                 class="img-thumbnail"
-                                 style="width:60px;height:60px;object-fit:cover;"
-                                 alt="Ảnh mặt hàng" />
-                        </td>
-                        <td>
-                            <strong>@item.ProductName</strong><br />
-                            <small class="text-muted">
-                                @item.ProductDescription
-                            </small>
-                        </td>
-                        <td>@item.Unit</td>
-                        <td class="text-end">@item.Price.ToString("N0")</td>
-                        <td class="text-center">
-                            @if (item.IsSelling)
-                            {
-                                <span class="badge bg-success">Đang bán</span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-secondary">Ngừng bán</span>
-                            }
-                        </td>
-                        <td class="text-center text-nowrap">
-                            <a href="~/Product/Edit/@item.ProductID" class="btn btn-sm btn-primary">
-                                <i class="bi bi-pencil"></i>
-                            </a>
-                            <a href="~/Product/Delete/@item.ProductID" class="btn btn-sm btn-danger">
-                                <i class="bi bi-trash"></i>
-                            </a>
-                        </td>
+                        <th style="width:80px;">Ảnh</th>
+                        <th>Mặt hàng</th>
+                        <th style="width:120px;">Đơn vị</th>
+                        <th style="width:120px;">Giá</th>
+                        <th class="text-center" style="width:140px;">Trạng thái</th>
+                        <th class="text-center" style="width:100px;">Thao tác</th>
                     </tr>
-                }
-            </tbody>
-        </table>
-    </div>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.DataItems)
+                    {
+                        <tr>
+                            <td class="text-center">
+                                <img src="~/images/products/@(string.IsNullOrEmpty(item.Photo) ? "no-image.png" : item.Photo)"
+                                     class="img-thumbnail" style="width:60px;height:60px;object-fit:cover;" />
+                            </td>
+                            <td>
+                                <strong>@item.ProductName</strong><br />
+                                <small class="text-muted">@item.ProductDescription</small>
+                            </td>
+                            <td>@item.Unit</td>
+                            <td class="text-end">@item.Price.ToString("N0")</td>
+                            <td class="text-center">
+                                <span class="badge @(item.IsSelling ? "bg-success" : "bg-secondary")">
+                                    @(item.IsSelling ? "Đang bán" : "Ngừng bán")
+                                </span>
+                            </td>
+                            <td class="text-center text-nowrap">
+                                <a href="~/Product/Edit/@item.ProductID" class="btn btn-sm btn-primary"><i class="bi bi-pencil"></i></a>
+                                <a href="~/Product/Delete/@item.ProductID" class="btn btn-sm btn-danger"><i class="bi bi-trash"></i></a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
 
-    <div class="card-footer">
-        <ul class="pagination justify-content-center mb-0">
-            @foreach (var p in Model.GetDisplayPages())
-            {
-                if (p.IsCurrent)
+        <div class="card-footer">
+            <ul class="pagination justify-content-center mb-0">
+                @foreach (var p in Model.GetDisplayPages())
                 {
-                    <li class="page-item active">
-                        <a class="page-link">@p.Page</a>
+                    <li class="page-item @(p.IsCurrent ? "active" : (p.IsEllipsis ? "disabled" : ""))">
+                        @if (p.IsEllipsis)
+                        {
+                            <a class="page-link">...</a>
+                        }
+                        else
+                        {
+                            <a class="page-link" href="javascript:;" onclick="paginationSearch(event, document.getElementById('formSearch'), @p.Page)">@p.Page</a>
+                        }
                     </li>
                 }
-                else if (p.IsEllipsis)
-                {
-                    <li class="page-item disabled">
-                        <a class="page-link">...</a>
-                    </li>
-                }
-                else
-                {
-                    <li class="page-item">
-                        <a class="page-link"
-                           href="javascript:;"
-                           onclick="paginationSearch(event, document.getElementById('formSearch'), @p.Page)">
-                            @p.Page
-                        </a>
-                    </li>
-                }
-            }
-        </ul>
+            </ul>
+        </div>
     </div>
-</div>
+}
+else
+{
+    <div class="alert alert-info text-center mt-2">
+        <i class="bi bi-search me-2"></i> Không tìm thấy mặt hàng nào phù hợp với điều kiện.
+    </div>
+}

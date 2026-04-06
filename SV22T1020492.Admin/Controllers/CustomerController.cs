@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SV22T1020492.BusinessLayers;
 using SV22T1020492.Models.Common;
 using SV22T1020492.Models.Partner;
 
 namespace SV22T1020492.Admin.Controllers
 {
+    [Authorize(Roles = $"{WebUserRoles.Administrator}")]
     public class CustomerController : Controller
     {
         public const string SEARCH_CUSTOMER = "SearchCustomer";

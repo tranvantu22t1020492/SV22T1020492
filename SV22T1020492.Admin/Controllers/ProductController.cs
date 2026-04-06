@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SV22T1020492.BusinessLayers;
 using SV22T1020492.Models.Catalog;
+using SV22T1020492.Models.Common;
 
 namespace SV22T1020492.Admin.Controllers
 {
@@ -42,7 +43,24 @@ namespace SV22T1020492.Admin.Controllers
         /// </summary>
         public async Task<IActionResult> Search(ProductSearchInput input)
         {
+            // Xử lý logic khoảng giá
+            if (input.MinPrice > 0 && input.MaxPrice <= 0)
+            {
+                // Nếu chỉ nhập giá thấp nhất, đặt giá cao nhất là số lớn nhất của hệ thống
+                input.MaxPrice = decimal.MaxValue;
+            }
+            else if (input.MinPrice <= 0 && input.MaxPrice <= 0)
+            {
+                // Nếu cả hai đều là 0, Service sẽ hiểu là không lọc theo giá (tùy vào cách viết trong Data Layer của bạn)
+                // Thông thường trong SQL bạn sẽ để: (@MinPrice = 0 OR Price >= @MinPrice)
+            }
+
+            // Thực hiện tìm kiếm (Các tiêu chí khác như CategoryID, SupplierID nếu = 0 thì Service tự hiểu là lấy tất cả)
             var result = await CatalogDataService.ListProductsAsync(input);
+
+            // Reset lại giá Max để giao diện không hiển thị số khổng lồ
+            if (input.MaxPrice == decimal.MaxValue) input.MaxPrice = 0;
+
             ApplicationContext.SetSessionData(SEARCH_PRODUCT, input);
             return View(result);
         }

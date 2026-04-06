@@ -3,9 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 using SV22T1020492.Models.Catalog;
 using SV22T1020492.Models.Common;
 using SV22T1020492.Models.Partner;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SV22T1020492.Admin.Controllers
 {
+    [Authorize(Roles = $"{WebUserRoles.Administrator}")]
     public class CategoryController : Controller
     {
             public const string SEARCHS_CATEGORY = "SearchCategory";

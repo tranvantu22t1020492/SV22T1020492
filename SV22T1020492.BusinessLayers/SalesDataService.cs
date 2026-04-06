@@ -167,6 +167,36 @@ namespace SV22T1020492.BusinessLayers
                 return await orderDB.DeleteAsync(cartOrder.OrderID);
             return false;
         }
+
+        public static async Task<int> InitOrderAsync(int employeeID, int? customerID, string deliveryProvince, string deliveryAddress, List<OrderDetail> details)
+        {
+            var orderData = new Order()
+            {
+                // KHÔNG gán OrderID ở đây. SQL Server sẽ tự cấp ID (ví dụ: 10, 11, 12...)
+                OrderTime = DateTime.Now,
+                EmployeeID = employeeID,
+                CustomerID = customerID,
+                DeliveryProvince = deliveryProvince ?? "",
+                DeliveryAddress = deliveryAddress ?? "",
+                Status = OrderStatusEnum.New // Status = 1
+            };
+
+            // Hàm AddAsync này sẽ thực hiện INSERT và trả về cái ID vừa được tự động cộng 1
+            int newOrderID = await orderDB.AddAsync(orderData);
+
+            if (newOrderID > 0)
+            {
+                foreach (var item in details)
+                {
+                    // Sau khi có ID mới từ Database, ta mới gán nó vào các mặt hàng chi tiết
+                    item.OrderID = newOrderID;
+                    await orderDB.AddDetailAsync(item);
+                }
+                return newOrderID;
+            }
+            return 0;
+        }
+
         #endregion
 
         #region Order Status Processing

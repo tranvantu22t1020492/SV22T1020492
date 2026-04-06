@@ -143,6 +143,10 @@ namespace SV22T1020492.Admin.Controllers
             else if (newPassword.Length < 6)
                 ModelState.AddModelError("newPassword", "Mật khẩu mới phải có ít nhất 6 ký tự");
 
+            // --- THÊM ĐIỀU KIỆN: Mật khẩu mới không được trùng mật khẩu cũ ---
+            else if (newPassword == oldPassword)
+                ModelState.AddModelError("newPassword", "Mật khẩu mới không được trùng với mật khẩu cũ");
+
             if (string.IsNullOrWhiteSpace(confirmPassword))
                 ModelState.AddModelError("confirmPassword", "Vui lòng xác nhận mật khẩu mới");
             else if (newPassword != confirmPassword)
