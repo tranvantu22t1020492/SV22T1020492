@@ -72,27 +72,26 @@ namespace SV22T1020492.BusinessLayers
 
         #region Giỏ hàng Database (Status = 0)
 
-        private const int SHOPPING_CART_STATUS = 0; // Đảm bảo giá trị này khớp với DB của bạn
+        private const int SHOPPING_CART_STATUS = 0; 
 
         /// <summary>
         /// Lấy thông tin đơn hàng đang đóng vai trò là giỏ hàng (Chỉ lấy Status = 0 và đúng CustomerID)
         /// </summary>
         public static async Task<OrderViewInfo?> GetCartOrderAsync(int customerID)
         {
-            // Thay vì dùng ListAsync (vốn dùng để tìm kiếm diện rộng), 
-            // hãy đảm bảo lọc cực kỳ chặt chẽ theo CustomerID và Status = 0
+
             var input = new OrderSearchInput
             {
                 CustomerID = customerID,
-                Status = (OrderStatusEnum)SHOPPING_CART_STATUS, // Phải là 0
+                Status = (OrderStatusEnum)SHOPPING_CART_STATUS, 
                 PageSize = 1,
                 Page = 1,
-                SearchValue = "" // Reset tìm kiếm để tránh lọc nhầm tên
+                SearchValue = "" 
             };
 
             var result = await orderDB.ListAsync(input);
 
-            // Chỉ lấy đơn hàng nếu nó thực sự có Status là 0
+
             var cart = result.DataItems.FirstOrDefault(x => (int)x.Status == SHOPPING_CART_STATUS);
             return cart;
         }
@@ -127,7 +126,6 @@ namespace SV22T1020492.BusinessLayers
 
             if (cartOrder == null)
             {
-                // Tạo mới đơn hàng trạng thái giỏ hàng (Status 0)
                 orderID = await orderDB.AddAsync(new Order
                 {
                     CustomerID = customerID,
