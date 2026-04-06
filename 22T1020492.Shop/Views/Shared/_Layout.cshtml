@@ -1,0 +1,163 @@
+﻿@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+    var action = ViewContext.RouteData.Values["action"]?.ToString();
+
+    // Danh sách ẩn Sidebar của bạn
+    var accountPages = new[] { "Login", "Register", "Profile", "ChangePassword", "History", "Details", "Cart", "Index" };
+
+    bool isAccountPage = (controller == "Account" && accountPages.Contains(action))
+                         || (controller == "Order" && accountPages.Contains(action))
+                         || (controller == "Product" && action == "Details")
+                         || (controller == "Cart");
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - LB4 SHOP</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --accent-color: #3b82f6;
+        }
+
+        /* ===== BODY ===== */
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            font-family: 'Segoe UI', sans-serif;
+            background: radial-gradient(circle at 10% 20%, rgba(59,130,246,0.12), transparent 40%), radial-gradient(circle at 90% 80%, rgba(236,72,153,0.12), transparent 40%), radial-gradient(circle at 50% 50%, rgba(16,185,129,0.08), transparent 50%), #f8fafc;
+            padding-top: 85px;
+        }
+
+        /* ===== MAIN ===== */
+        .main-content {
+            flex: 1;
+            animation: fadeInPage 0.4s ease;
+        }
+
+        /* animation load trang */
+        @@keyframes fadeInPage {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ===== SIDEBAR ===== */
+        aside {
+            animation: slideLeft 0.5s ease;
+        }
+
+        @@keyframes slideLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* ===== CONTENT ===== */
+        .col-lg-9, .col-12 {
+            animation: fadeRight 0.5s ease;
+        }
+
+        @@keyframes fadeRight {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* ===== ACCOUNT PAGE ===== */
+        .account-page-wrapper {
+            min-height: 80vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 0;
+            width: 100%;
+            /* nền riêng */
+            background: radial-gradient(circle at top, #e0edff, transparent 70%);
+        }
+
+        /* ===== PRODUCT CARD ===== */
+        .product-card {
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+            border-radius: 16px;
+            border: none !important;
+            height: 100%;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+            /* hover card */
+            .product-card:hover {
+                transform: translateY(-6px) scale(1.01);
+                box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+            }
+
+        /* ===== CONTAINER ===== */
+        .container.main-content {
+            margin-top: 10px;
+        }
+
+        /* ===== FOOTER FIX ===== */
+        footer {
+            margin-top: auto;
+        }
+    </style>
+</head>
+<body>
+    @await Html.PartialAsync("_Header")
+
+    <div class="container main-content">
+        <div class="row">
+            @if (!isAccountPage)
+            {
+                <aside class="col-lg-3 d-none d-lg-block">
+                    @await Html.PartialAsync("_Sidebar")
+                </aside>
+                <div class="col-lg-9">
+                    @RenderBody()
+                </div>
+            }
+            else
+            {
+                <div class="col-12">
+                    <div class="account-page-wrapper">
+                        @RenderBody()
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    @await Html.PartialAsync("_Footer")
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

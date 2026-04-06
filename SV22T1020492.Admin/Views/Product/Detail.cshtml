@@ -1,0 +1,176 @@
+﻿@{
+    ViewBag.Title = "Chi tiết Mặt hàng";
+    var productId = 123;
+}
+
+<div class="row">
+    <!-- Thông tin cơ bản -->
+    <div class="col-lg-8 col-md-12">
+        <div class="card card-primary card-outline">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="bi bi-boxes me-2"></i>
+                    Thông tin mặt hàng
+                </h3>
+                <div class="card-tools">
+                    <span class="badge bg-success">Đang bán</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <!-- Ảnh chính -->
+                    <div class="col-md-4 text-center mb-3">
+                        <img src="~/lib/adminlte/assets/img/default-150x150.png"
+                             class="img-fluid rounded border shadow-sm"
+                             style="max-height:200px; object-fit:cover; width:100%;"
+                             alt="Product Photo" />
+                        <small class="text-muted d-block mt-1">Ảnh đại diện</small>
+                    </div>
+
+                    <!-- Thông tin -->
+                    <div class="col-md-8">
+                        <dl class="row">
+                            <dt class="col-sm-5">Mã mặt hàng</dt>
+                            <dd class="col-sm-7">#@productId</dd>
+
+                            <dt class="col-sm-5">Tên mặt hàng</dt>
+                            <dd class="col-sm-7"><strong>Trà sữa Trân châu</strong></dd>
+
+                            <dt class="col-sm-5">Loại hàng</dt>
+                            <dd class="col-sm-7">
+                                <span class="badge bg-info">Thực phẩm</span>
+                            </dd>
+
+                            <dt class="col-sm-5">Nhà cung cấp</dt>
+                            <dd class="col-sm-7">Công ty ABC</dd>
+
+                            <dt class="col-sm-5">Đơn vị tính</dt>
+                            <dd class="col-sm-7">Hộp</dd>
+
+                            <dt class="col-sm-5">Giá bán</dt>
+                            <dd class="col-sm-7 text-success fw-bold fs-5">15,000 đ</dd>
+
+                            <dt class="col-sm-5">Trạng thái</dt>
+                            <dd class="col-sm-7">
+                                <span class="badge bg-success">
+                                    <i class="bi bi-check-circle me-1"></i>Đang bán
+                                </span>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+
+                <!-- Mô tả -->
+                <div class="row mt-2">
+                    <div class="col-12">
+                        <label class="fw-bold text-muted small">MÔ TẢ SẢN PHẨM</label>
+                        <div class="border rounded p-3 bg-light">
+                            Trà sữa Trân châu thơm ngon, béo ngậy với những viên trân châu đen dẻo dai.
+                            Được làm từ trà đen thượng hạng, sữa tươi nguyên chất và trân châu đen tự chế.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Thuộc tính & Ảnh -->
+    <div class="col-lg-4 col-md-12">
+        <!-- Thuộc tính -->
+        <div class="card card-info card-outline mb-3">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="bi bi-tags me-1"></i>
+                    Thuộc tính (<span class="badge bg-info">3</span>)
+                </h3>
+                <div class="card-tools">
+                    <a href="~/Product/ListAttributes/@productId" class="btn btn-sm btn-info">
+                        <i class="bi bi-pencil-square"></i> Quản lý
+                    </a>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-sm table-hover mb-0">
+                    <thead class="table-secondary">
+                        <tr>
+                            <th>Thuộc tính</th>
+                            <th>Giá trị</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><small>Thành phần</small></td>
+                            <td><small>Trà đen, sữa tươi, trân châu đen</small></td>
+                        </tr>
+                        <tr>
+                            <td><small>Khối lượng</small></td>
+                            <td><small>500ml</small></td>
+                        </tr>
+                        <tr>
+                            <td><small>Hạn sử dụng</small></td>
+                            <td><small>3 ngày</small></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Thư viện ảnh -->
+        <div class="card card-warning card-outline">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="bi bi-images me-1"></i>
+                    Thư viện ảnh (<span class="badge bg-warning text-dark">2</span>)
+                </h3>
+                <div class="card-tools">
+                    <a href="~/Product/ListPhotos/@productId" class="btn btn-sm btn-warning">
+                        <i class="bi bi-pencil-square"></i> Quản lý
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row g-2">
+                    <div class="col-6">
+                        <img src="~/lib/adminlte/assets/img/default-150x150.png"
+                             class="img-fluid rounded border"
+                             style="height:80px; width:100%; object-fit:cover;"
+                             alt="photo 1" />
+                        <small class="text-muted d-block">Ảnh chính</small>
+                    </div>
+                    <div class="col-6">
+                        <img src="~/lib/adminlte/assets/img/default-150x150.png"
+                             class="img-fluid rounded border"
+                             style="height:80px; width:100%; object-fit:cover; opacity:0.5;"
+                             alt="photo 2" />
+                        <small class="text-muted d-block"><i class="bi bi-eye-slash"></i> Đã ẩn</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Nút hành động -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-footer text-end">
+                <a href="~/Product" class="btn btn-secondary me-2">
+                    <i class="bi bi-arrow-left"></i> Quay lại
+                </a>
+                <a href="~/Product/ListAttributes/@productId" class="btn btn-info me-2">
+                    <i class="bi bi-tags"></i> Danh sách thuộc tính
+                </a>
+                <a href="~/Product/ListPhotos/@productId" class="btn btn-warning me-2">
+                    <i class="bi bi-images"></i> Thư viện ảnh
+                </a>
+                <a href="~/Product/Edit/@productId" class="btn btn-primary me-2">
+                    <i class="bi bi-pencil-square"></i> Chỉnh sửa
+                </a>
+                <a href="~/Product/Delete/@productId" class="btn btn-danger">
+                    <i class="bi bi-trash"></i> Xóa
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,207 @@
+﻿@model IEnumerable<SV22T1020492.Models.Sales.OrderDetailViewInfo>
+@{
+    var order = ViewBag.Order as SV22T1020492.Models.Sales.Order;
+    ViewData["Title"] = "Chi tiết đơn hàng #" + order?.OrderID;
+}
+
+<style>
+    /* ===== CARD ===== */
+    .order-card {
+        border-radius: 20px;
+        overflow: hidden;
+    }
+
+    /* ===== HEADER ===== */
+    .order-header {
+        background: linear-gradient(135deg, #eef5ff, #ffffff);
+    }
+
+    /* ===== SECTION TITLE ===== */
+    .section-title {
+        font-size: 14px;
+        letter-spacing: 1px;
+        color: #6c757d;
+        margin-bottom: 10px;
+    }
+
+    /* ===== STATUS BADGE ===== */
+    .status-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 13px;
+    }
+
+    /* ===== TABLE ===== */
+    table tbody tr {
+        transition: 0.2s;
+    }
+
+        table tbody tr:hover {
+            background: #f8fbff;
+        }
+
+    /* ===== TOTAL ===== */
+    .total-box {
+        background: linear-gradient(135deg, #fff5f5, #ffffff);
+        border-radius: 12px;
+        padding: 10px;
+    }
+
+    /* ===== BUTTON ===== */
+    .btn-cancel {
+        border-radius: 30px;
+        transition: 0.3s;
+    }
+
+        .btn-cancel:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(220,53,69,0.3);
+        }
+</style>
+
+<div class="container mt-4">
+    <div class="card order-card shadow border-0">
+
+        <!-- HEADER -->
+        <div class="card-header order-header py-3 d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 text-primary fw-bold">
+                <i class="fas fa-file-invoice me-2"></i>
+                Đơn hàng #@order?.OrderID
+            </h5>
+
+            <a href="/Order/Index" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                <i class="fas fa-arrow-left me-1"></i>Quay lại
+            </a>
+        </div>
+
+        <div class="card-body p-4">
+
+            <!-- INFO -->
+            <div class="row mb-4 g-4">
+
+                <!-- CUSTOMER -->
+                <div class="col-md-6">
+                    <div class="section-title">THÔNG TIN KHÁCH HÀNG</div>
+                    <div class="bg-light p-3 rounded-3">
+                        <p class="mb-1"><strong>Họ tên:</strong> @ViewBag.CustomerName</p>
+                        <p class="mb-1"><strong>Điện thoại:</strong> @ViewBag.CustomerPhone</p>
+                        <p class="mb-0"><strong>Địa chỉ:</strong> @order?.DeliveryAddress, @order?.DeliveryProvince</p>
+                    </div>
+                </div>
+
+                <!-- STATUS -->
+                <div class="col-md-6">
+                    <div class="section-title">TRẠNG THÁI ĐƠN HÀNG</div>
+                    <div class="bg-light p-3 rounded-3">
+
+                        <p class="mb-2">
+                            <strong>Ngày đặt:</strong>
+                            @order?.OrderTime.ToString("dd/MM/yyyy HH:mm")
+                        </p>
+
+                        <p class="mb-2">
+                            <strong>Trạng thái:</strong>
+
+                            @switch ((int)order.Status)
+                            {
+                                case 1:
+                                    <span class="status-badge bg-info text-white">Chờ duyệt</span>
+                                    break;
+                                case 2:
+                                    <span class="status-badge bg-primary text-white">Đã duyệt</span>
+                                    break;
+                                case 3:
+                                    <span class="status-badge bg-warning text-dark">Đang giao</span>
+                                    break;
+                                case 4:
+                                    <span class="status-badge bg-success">Hoàn tất</span>
+                                    break;
+                                case -1:
+                                    <span class="status-badge bg-danger">Đã hủy</span>
+                                    break;
+                                case -2:
+                                    <span class="status-badge bg-secondary">Bị từ chối</span>
+                                    break;
+                                default:
+                                    <span class="status-badge bg-dark">Không xác định</span>
+                                    break;
+                            }
+                        </p>
+
+                        @if (order.ShipperID.HasValue)
+                        {
+                            <p class="mb-0">
+                                <strong>Shipper:</strong>
+                                @ViewBag.ShipperName (@ViewBag.ShipperPhone)
+                            </p>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- PRODUCT LIST -->
+            <div class="section-title">DANH SÁCH SẢN PHẨM</div>
+
+            <div class="table-responsive">
+                <table class="table align-middle border">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Sản phẩm</th>
+                            <th class="text-center">SL</th>
+                            <th class="text-end">Giá</th>
+                            <th class="text-end">Thành tiền</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="fw-semibold">
+                                    @((ViewBag.ProductNames as Dictionary<int, string>)?[item.ProductID])
+                                </td>
+
+                                <td class="text-center">@item.Quantity</td>
+
+                                <td class="text-end text-muted">
+                                    @item.SalePrice.ToString("N0") đ
+                                </td>
+
+                                <td class="text-end fw-bold text-dark">
+                                    @((item.Quantity * item.SalePrice).ToString("N0")) đ
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+
+                    <tfoot>
+                        <tr>
+                            <td colspan="3" class="text-end fw-bold">Tổng cộng:</td>
+                            <td class="text-end">
+                                <div class="total-box text-danger fw-bold fs-5">
+                                    @Model.Sum(x => x.Quantity * x.SalePrice).ToString("N0") đ
+                                </div>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- CANCEL BUTTON -->
+            @if ((int)order.Status == 1)
+            {
+                <div class="text-end mt-4">
+                    <form action="/Order/Cancel/@order.OrderID"
+                          method="post"
+                          onsubmit="return confirm('Bạn có chắc muốn hủy đơn hàng này?')">
+
+                        <button type="submit" class="btn btn-danger btn-cancel px-4">
+                            <i class="fas fa-times me-1"></i>Hủy đơn hàng
+                        </button>
+                    </form>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>

@@ -1,0 +1,87 @@
+﻿@model IEnumerable<SV22T1020492.Models.Partner.Shipper>
+@{
+    Layout = null;
+}
+
+<div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content shadow-lg border-0" style="border-radius: 12px; overflow: hidden;">
+        <form action="~/Order/Shipping" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="id" value="@ViewBag.OrderID" />
+
+            @* Tiêu đề tràn viền với góc bo *@
+            <div class="modal-header bg-primary text-white border-0 p-3" style="border-radius: 12px 12px 0 0;">
+                <h5 class="modal-title fw-bold">
+                    <i class="bi bi-truck-flatbed me-2"></i>Chuyển giao đơn hàng #@ViewBag.OrderID
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body p-4 bg-white">
+                @* Phần gợi ý và Hộp chọn đổ xuống, không viền thẻ *@
+                <div class="form-group mb-0">
+                    <label class="fw-bold text-secondary mb-3 fs-6">
+                        <i class="bi bi-info-circle me-1"></i> Vui lòng chọn đơn vị vận chuyển:
+                    </label>
+
+                    @* Hộp chọn nâng cao với Dropdown có thể cuộn *@
+                    <select class="form-select select2-shipper" name="shipperID" required style="width: 100%; height: 50px;">
+                        <option value="" disabled selected>-- Bấm để chọn người giao hàng --</option>
+                        @foreach (var item in Model)
+                        {
+                            <option value="@item.ShipperID">@item.ShipperName (@item.Phone)</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="alert alert-light border-0 mt-3 mb-0 small text-muted italic p-2 bg-light">
+                    <i class="bi bi-exclamation-triangle-fill me-1 text-warning"></i>
+                    Quá trình này sẽ cập nhật trạng thái đơn hàng sang <strong>Đang giao hàng</strong>.
+                </div>
+            </div>
+
+            <div class="modal-footer border-0 p-3 bg-light" style="border-radius: 0 0 12px 12px;">
+                <button type="button" class="btn btn-link text-secondary text-decoration-none" data-bs-dismiss="modal">Đóng</button>
+                <button type="submit" class="btn btn-primary px-4 shadow-sm fw-bold" style="border-radius: 8px;">
+                    Xác nhận chuyển hàng <i class="bi bi-arrow-right ms-1"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@* Bạn có thể thêm Script này vào Detail.cshtml hoặc Layout chung nếu chưa có *@
+@* <script src="~/plugins/select2/js/select2.full.min.js"></script> *@
+<script>
+    $(document).ready(function() {
+        // Khởi tạo select2 (nếu bạn đã cài đặt thư viện)
+        $('.select2-shipper').select2({
+            theme: 'bootstrap4',
+            placeholder: '-- Bấm để chọn người giao hàng --',
+            allowClear: true,
+            dropdownParent: $('#modal-container') // Cần thiết để Dropdown hiện trên Modal
+        });
+    });
+</script>
+
+@* Phong cách cho Dropdown *@
+<style>
+    /* Bắt chước giao diện Select2 nếu không có thư viện */
+    .form-select.select2-shipper {
+        border: 1px solid #ced4da;
+        border-radius: 8px;
+        padding-left: 15px;
+        background-color: white;
+        transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    }
+
+        .form-select.select2-shipper:focus {
+            border-color: #86b7fe;
+            outline: 0;
+            box-shadow: 0 0 0 0.25rem rgba(13,110,253,.25);
+        }
+
+    .select2-shipper option {
+        padding: 10px;
+    }
+</style>

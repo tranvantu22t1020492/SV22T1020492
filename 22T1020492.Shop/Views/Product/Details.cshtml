@@ -1,0 +1,260 @@
+﻿@model SV22T1020492.Models.Catalog.Product
+@{
+    ViewData["Title"] = "Chi tiết sản phẩm";
+    var photos = ViewBag.Photos as List<SV22T1020492.Models.Catalog.ProductPhoto>;
+}
+
+<style>
+    /* ===== CARD ===== */
+    .card {
+        border-radius: 20px !important;
+        background: #ffffff;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.08);
+        animation: fadeIn 0.4s ease;
+    }
+
+    /* FIX RAZOR */
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(15px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* ===== IMAGE ===== */
+    #mainImage {
+        transition: 0.4s ease;
+    }
+
+        #mainImage:hover {
+            transform: scale(1.05);
+        }
+
+    /* khung ảnh */
+    .image-box {
+        border-radius: 16px;
+        background: linear-gradient(145deg, #f8fafc, #eef2ff);
+        transition: 0.3s;
+    }
+
+        .image-box:hover {
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.05);
+        }
+
+    /* thumbnail */
+    .img-thumbnail {
+        border-radius: 10px;
+        transition: 0.25s;
+        opacity: 0;
+        transform: translateY(10px);
+        animation: fadeThumb 0.4s ease forwards;
+    }
+
+        .img-thumbnail:hover {
+            transform: scale(1.1);
+            border-color: #0d6efd;
+        }
+
+        .img-thumbnail:nth-child(1) {
+            animation-delay: 0.05s;
+        }
+
+        .img-thumbnail:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .img-thumbnail:nth-child(3) {
+            animation-delay: 0.15s;
+        }
+
+        .img-thumbnail:nth-child(4) {
+            animation-delay: 0.2s;
+        }
+
+    @@keyframes fadeThumb {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* ===== TITLE ===== */
+    h2 {
+        letter-spacing: 0.5px;
+    }
+
+    /* ===== PRICE ===== */
+    h3 {
+        font-size: 1.8rem;
+        color: #ef4444 !important;
+        text-shadow: 0 2px 8px rgba(239,68,68,0.2);
+    }
+
+    /* ===== DESCRIPTION ===== */
+    .product-desc {
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 15px;
+    }
+
+    /* ===== FORM ===== */
+    .cart-box {
+        border-radius: 16px;
+        background: linear-gradient(135deg, #f8fafc, #eef2ff);
+        transition: 0.3s;
+    }
+
+        .cart-box:hover {
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+        }
+
+    /* input */
+    input[type="number"] {
+        border-radius: 10px !important;
+    }
+
+    /* ===== BUTTON ===== */
+    .btn-primary {
+        border-radius: 14px;
+        background: linear-gradient(135deg, #0d6efd, #3b82f6);
+        border: none;
+        transition: 0.3s;
+    }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(13,110,253,0.4);
+        }
+
+    /* hover nhẹ cho nút */
+    .transition-hover {
+        transition: all 0.3s ease;
+    }
+
+        .transition-hover:hover {
+            transform: translateY(-2px);
+        }
+</style>
+
+<div class="row justify-content-center w-100">
+    <div class="col-lg-10 col-xl-9">
+
+        <div class="card border-0 shadow-sm p-4">
+            <div class="row">
+
+                <!-- IMAGE -->
+                <div class="col-md-5 text-center">
+                    <div class="border rounded p-3 bg-white mb-3 shadow-sm image-box"
+                         style="min-height: 400px; display: flex; align-items: center; justify-content: center;">
+                        <img id="mainImage"
+                             src="~/images/products/@(string.IsNullOrEmpty(Model.Photo) || Model.Photo == "nophoto" ? "no-photo.png" : Model.Photo)"
+                             class="img-fluid"
+                             style="max-height: 380px; object-fit: contain;"
+                             onerror="this.src='/images/products/no-photo.png'">
+                    </div>
+
+                    @if (photos != null && photos.Count > 0)
+                    {
+                        <div class="d-flex gap-2 overflow-auto pb-2 justify-content-center">
+                            @foreach (var p in photos)
+                            {
+                                <img src="~/images/products/@p.Photo"
+                                     class="img-thumbnail"
+                                     style="width: 70px; height: 70px; cursor: pointer; object-fit: cover;"
+                                     onclick="document.getElementById('mainImage').src = this.src">
+                            }
+                        </div>
+                    }
+                </div>
+
+                <!-- INFO -->
+                <div class="col-md-7 d-flex flex-column ps-lg-5">
+
+                    <h2 class="fw-bold text-dark">@Model.ProductName</h2>
+
+                    <h3 class="fw-bold my-3">
+                        @Model.Price.ToString("N0") đ
+                    </h3>
+
+                    <div class="mt-4 flex-grow-1">
+                        <h6 class="fw-bold border-bottom pb-2 text-uppercase text-muted"
+                            style="letter-spacing: 1px;">
+                            Mô tả sản phẩm
+                        </h6>
+
+                        <p class="text-secondary product-desc"
+                           style="white-space: pre-line; line-height: 1.6;">
+                            @Model.ProductDescription
+                        </p>
+                    </div>
+
+                    <!-- ADD TO CART -->
+                    <div class="mt-4 p-4 bg-light rounded-3 border cart-box">
+                        <form id="frmAddToCart" class="row g-3 align-items-end">
+
+                            <input type="hidden" name="productID" value="@Model.ProductID" />
+                            <input type="hidden" name="salePrice" value="@Model.Price" />
+
+                            <div class="col-sm-4">
+                                <label class="small fw-bold text-muted mb-2 d-block">
+                                    Số lượng:
+                                </label>
+
+                                <div class="input-group shadow-sm">
+                                    <input type="number"
+                                           name="quantity"
+                                           value="1"
+                                           min="1"
+                                           class="form-control text-center fw-bold">
+                                </div>
+                            </div>
+
+                            <div class="col-sm-8">
+                                <button type="button"
+                                        onclick="handleDetailAddToCart()"
+                                        class="btn btn-primary btn-lg w-100 fw-bold shadow-sm py-3 transition-hover">
+                                    <i class="fas fa-cart-plus me-2"></i>
+                                    THÊM VÀO GIỎ HÀNG
+                                </button>
+                            </div>
+
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    function handleDetailAddToCart() {
+        var authStatus = document.getElementById('globalAuthStatus');
+
+        if (!authStatus || authStatus.value !== 'true') {
+            window.location.href = '/Account/Login';
+            return;
+        }
+
+        var formData = $('#frmAddToCart').serialize();
+
+        $.post('/Cart/AddToCart', formData, function (response) {
+            if (response.success) {
+
+                if (typeof updateCartBadge === "function") {
+                    updateCartBadge();
+                }
+            } else {
+                alert("Không thể thêm vào giỏ hàng!");
+            }
+        }).fail(function () {
+            alert("Lỗi khi kết nối đến máy chủ!");
+        });
+    }
+</script>

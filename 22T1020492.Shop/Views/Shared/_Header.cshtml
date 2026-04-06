@@ -1,0 +1,227 @@
+﻿@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    var userId = HttpContextAccessor.HttpContext?.Session.GetInt32("UserId");
+    var userDisplayName = HttpContextAccessor.HttpContext?.Session.GetString("UserDisplayName");
+    bool isLogged = userId != null;
+
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+    var action = ViewContext.RouteData.Values["action"]?.ToString();
+
+    var accountPages = new[] { "Login", "Register", "Profile", "ChangePassword", "History", "Details", "Cart" };
+    bool isAccountPage = (controller == "Account" && accountPages.Contains(action))
+                         || (controller == "Order" && accountPages.Contains(action))
+                         || (controller == "Cart");
+    
+    var categoriesData = await SV22T1020492.BusinessLayers.CatalogDataService
+        .ListCategoriesAsync(new SV22T1020492.Models.Common.PaginationSearchInput
+                {
+                    Page = 1,
+                    PageSize = 100
+                });
+
+    var categories = categoriesData?.DataItems;
+}
+
+<input type="hidden" id="globalAuthStatus" value="@(isLogged ? "true" : "false")" />
+
+<style>
+    .navbar-custom {
+        background: linear-gradient(135deg, #343a40, #1f1f2e);
+        padding: 10px 0;
+        animation: fadeDown 0.5s ease;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1030;
+    }
+
+    @@keyframes fadeDown {
+        from { opacity: 0; transform: translateY(-15px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .navbar-brand:hover {
+        transform: scale(1.08);
+        text-shadow: 0 0 8px #00ffcc;
+        transition: 0.3s;
+    }
+
+    #headerSearchForm .input-group {
+        border-radius: 50px;
+        overflow: hidden;
+        transition: 0.3s;
+    }
+
+    #headerSearchForm .input-group:focus-within {
+        box-shadow: 0 0 12px #00ffcc;
+    }
+
+    .badge {
+        animation: pulse 1.5s infinite;
+    }
+
+    @@keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+        100% { transform: scale(1); }
+    }
+
+    .icon-hover i {
+        transition: 0.3s;
+    }
+
+    .icon-hover:hover i {
+        transform: scale(1.2) rotate(5deg);
+        color: #00ffcc;
+    }
+
+    /* thêm nhẹ cho select */
+    .form-select {
+        border: none;
+        max-width: 150px;
+    }
+</style>
+
+<header class="navbar-custom shadow-sm">
+    <div class="container d-flex align-items-center justify-content-between">
+
+        <!-- LOGO -->
+        <a href="/" class="navbar-brand text-white fw-bold me-3" style="font-size: 1.5rem; text-decoration: none;">
+            <i class="fas fa-store me-2"></i>LB4 SHOP
+        </a>
+
+        <!-- SEARCH -->
+        @if (!isAccountPage)
+        {
+            <form id="headerSearchForm" class="d-flex flex-grow-1 mx-4" action="/Product" method="get" style="max-width: 700px;">
+                <div class="input-group shadow-sm">
+
+                    <!-- CATEGORY -->
+                    <select name="categoryID" class="form-select">
+                        <option value="0">Tất cả</option>
+
+                        @if (categories != null)
+                        {
+                            foreach (var c in categories)
+                            {
+                                if (c.CategoryID == (ViewBag.CategoryID ?? 0))
+                                {
+                                    <option value="@c.CategoryID" selected>@c.CategoryName</option>
+                                }
+                                else
+                                {
+                                    <option value="@c.CategoryID">@c.CategoryName</option>
+                                }
+                            }
+                        }
+                    </select>
+
+                    <!-- SEARCH TEXT -->
+                    <input class="form-control border-0" type="text" name="searchValue"
+                           placeholder="Tìm sản phẩm..." value="@ViewBag.SearchValue">
+
+                    <!-- PRICE -->
+                    <input type="number" id="minPrice" name="minPrice"
+                           class="form-control d-none d-lg-block border-0 border-start"
+                           placeholder="Giá từ" value="@ViewBag.MinPrice">
+
+                    <input type="number" id="maxPrice" name="maxPrice"
+                           class="form-control d-none d-lg-block border-0 border-start"
+                           placeholder="Đến" value="@ViewBag.MaxPrice">
+
+                    <!-- BUTTON -->
+                    <button class="btn btn-success px-3" type="submit">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </form>
+        }
+        else
+        {
+            <div class="flex-grow-1"></div>
+        }
+
+        <!-- RIGHT -->
+        <div class="d-flex align-items-center">
+
+            @if (isLogged)
+            {
+                <a href="/Order/Index" class="text-white text-decoration-none me-4 d-inline-block icon-hover">
+                    <div class="position-relative">
+                        <i class="fas fa-file-invoice fa-lg"></i>
+                        <span id="order-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-info" style="font-size: 0.6rem; padding: 0.35em 0.65em;"></span>
+                    </div>
+                </a>
+            }
+
+            <a href="/Cart" class="text-white text-decoration-none me-4 d-inline-block icon-hover">
+                <div class="position-relative">
+                    <i class="fas fa-shopping-cart fa-lg"></i>
+                    <span id="cart-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem; padding: 0.35em 0.65em;">0</span>
+                </div>
+            </a>
+
+            <div class="dropdown">
+                <a href="#" class="text-white text-decoration-none dropdown-toggle fw-bold icon-hover" data-bs-toggle="dropdown">
+                    <i class="fas fa-user-circle fa-lg me-1"></i>
+                    @(isLogged ? userDisplayName : "Tài khoản")
+                </a>
+
+                <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2">
+                    @if (isLogged)
+                    {
+                        <li><a class="dropdown-item py-2" href="/Account/Profile">Hồ sơ cá nhân</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item py-2 text-danger" href="/Account/Logout">Đăng xuất</a></li>
+                    }
+                    else
+                    {
+                        <li><a class="dropdown-item py-2" href="/Account/Login">Đăng nhập</a></li>
+                        <li><a class="dropdown-item py-2" href="/Account/Register">Đăng Ký</a></li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+</header>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        updateCartBadge();
+
+        $('#headerSearchForm').on('submit', function (e) {
+            var min = parseFloat($('#minPrice').val()) || 0;
+            var max = parseFloat($('#maxPrice').val()) || 0;
+
+            if (max > 0 && max < min) {
+                alert("Giá đến phải lớn hơn hoặc bằng giá từ!");
+                e.preventDefault();
+                return false;
+            }
+        });
+    });
+
+    function updateCartBadge() {
+        $.ajax({
+            url: '/Cart/GetCartCount',
+            type: 'GET',
+            cache: false,
+            success: function (count) {
+                $('#cart-badge').text(count > 0 ? count : '0');
+            }
+        });
+
+        if ($('#globalAuthStatus').val() === 'true') {
+            $.ajax({
+                url: '/Order/GetOrderCount',
+                type: 'GET',
+                cache: false,
+                success: function (count) {
+                    $('#order-badge').text(count).hide().fadeIn(200);
+                }
+            });
+        }
+    }
+</script>

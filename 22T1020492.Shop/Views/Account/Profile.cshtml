@@ -1,0 +1,192 @@
+﻿@model SV22T1020492.Models.Partner.AccountCustomer
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    Layout = "_Layout";
+    ViewBag.Title = "Hồ sơ của tôi";
+    var userDisplayName = HttpContextAccessor.HttpContext?.Session.GetString("UserDisplayName");
+}
+
+<style>
+    /* ===== BACKGROUND ===== */
+    body {
+        background: linear-gradient(135deg, #e0f2fe, #f8fafc);
+    }
+
+    /* ===== CARD ===== */
+    .profile-card {
+        border-radius: 20px;
+        background: rgba(255,255,255,0.95);
+        backdrop-filter: blur(8px);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.08);
+        transition: 0.3s;
+    }
+
+        .profile-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.12);
+        }
+
+    /* ===== AVATAR ===== */
+    .avatar-box {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #0d6efd, #60a5fa);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        box-shadow: 0 10px 30px rgba(13,110,253,0.3);
+    }
+
+    /* ===== MENU ===== */
+    .menu-item {
+        border-radius: 12px;
+        transition: 0.25s;
+        padding: 10px 12px;
+    }
+
+        .menu-item:hover {
+            background: #eff6ff;
+            transform: translateX(5px);
+        }
+
+        .menu-item.active {
+            background: linear-gradient(135deg, #0d6efd, #3b82f6);
+            color: white !important;
+            box-shadow: 0 5px 15px rgba(13,110,253,0.3);
+        }
+
+    /* ===== INFO BOX ===== */
+    .info-box {
+        background: #f9fafb;
+        border-radius: 12px;
+        padding: 12px 15px;
+        transition: 0.25s;
+    }
+
+        .info-box:hover {
+            background: #eef6ff;
+            transform: translateY(-2px);
+        }
+
+    /* ===== TITLE ===== */
+    .section-title {
+        color: #0d6efd;
+        letter-spacing: 1px;
+    }
+
+    /* ===== FADE IN ===== */
+    @@keyframes fadeUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .fade-up {
+        animation: fadeUp 0.5s ease;
+    }
+</style>
+
+<div class="container py-5 fade-up">
+    <div class="row g-4">
+
+        <!-- SIDEBAR -->
+        <div class="col-lg-4">
+            <div class="profile-card border-0 overflow-hidden">
+
+                <div class="text-center p-4 border-bottom">
+                    <div class="avatar-box mx-auto mb-3">
+                        <i class="fas fa-user fa-2x"></i>
+                    </div>
+
+                    <h5 class="fw-bold mb-1">@userDisplayName</h5>
+                    <p class="text-muted small mb-0">Khách hàng thành viên</p>
+                </div>
+
+                <div class="p-3">
+                    <a href="/Account/Profile" class="menu-item d-block text-decoration-none active mb-2">
+                        <i class="fas fa-user-circle me-2"></i>Thông tin cá nhân
+                    </a>
+
+                    <a href="/Account/ChangePassword" class="menu-item d-block text-decoration-none mb-2">
+                        <i class="fas fa-lock me-2"></i>Đổi mật khẩu
+                    </a>
+
+                    <a href="/Account/Logout" class="menu-item d-block text-decoration-none text-danger">
+                        <i class="fas fa-sign-out-alt me-2"></i>Đăng xuất
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTENT -->
+        <div class="col-lg-8">
+
+            @if (TempData["Message"] != null)
+            {
+                <div class="alert alert-success border-0 shadow-sm rounded-3 mb-4 fade show">
+                    <i class="fas fa-check-circle me-2"></i> @TempData["Message"]
+                </div>
+            }
+
+            <div class="profile-card p-4">
+
+                <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+                    <h5 class="fw-bold section-title mb-0">
+                        <i class="fas fa-id-card me-2"></i>THÔNG TIN TÀI KHOẢN
+                    </h5>
+
+                    <a href="/Account/EditProfile"
+                       class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                        <i class="fas fa-pen me-1"></i>Chỉnh sửa
+                    </a>
+                </div>
+
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+                        <label class="text-muted small fw-bold">Họ tên khách hàng</label>
+                        <div class="info-box fw-bold">@Model.CustomerName</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="text-muted small fw-bold">Tên liên hệ</label>
+                        <div class="info-box">@Model.ContactName</div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="text-muted small fw-bold">Email</label>
+                        <div class="info-box text-primary fw-bold">@Model.Email</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="text-muted small fw-bold">Số điện thoại</label>
+                        <div class="info-box">
+                            @(string.IsNullOrEmpty(Model.Phone) ? "Chưa cập nhật" : Model.Phone)
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="text-muted small fw-bold">Tỉnh / Thành phố</label>
+                        <div class="info-box">@Model.Province</div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="text-muted small fw-bold">Địa chỉ</label>
+                        <div class="info-box">@Model.Address</div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

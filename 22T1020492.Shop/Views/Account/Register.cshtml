@@ -1,0 +1,315 @@
+﻿@model SV22T1020492.Models.Partner.AccountCustomer
+@{
+    Layout = "_Layout";
+    ViewBag.Title = "Đăng ký tài khoản";
+}
+
+<style>
+    /* ===== WRAPPER ===== */
+    .register-wrapper {
+        width: 100%;
+        max-width: 850px;
+        margin: auto;
+        padding: 20px 0;
+        animation: fadeIn 0.5s ease;
+    }
+
+    /* FIX RAZOR */
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* ===== CARD ===== */
+    .register-card {
+        border-radius: 20px;
+        background: rgba(255,255,255,0.96);
+        backdrop-filter: blur(8px);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+    }
+
+    /* ===== INPUT ===== */
+    .form-control, .form-select {
+        border-radius: 12px;
+        padding: 12px;
+        border: 1px solid #ddd;
+        transition: 0.25s;
+    }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 3px rgba(13,110,253,0.15);
+        }
+
+    /* ===== BUTTON ===== */
+    .btn-primary {
+        border-radius: 14px;
+        background: linear-gradient(135deg, #0d6efd, #3b82f6);
+        border: none;
+        transition: 0.3s;
+    }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(13,110,253,0.4);
+        }
+
+    /* ===== TITLE ===== */
+    .title-main {
+        color: #0d6efd;
+        letter-spacing: 1px;
+    }
+
+    /* ===== ALERT ===== */
+    .alert {
+        border-radius: 12px;
+    }
+</style>
+
+<div class="register-wrapper">
+    <div class="card register-card border-0 p-4">
+
+        <h3 class="text-center fw-bold mb-2 text-uppercase title-main">
+            Đăng ký thành viên
+        </h3>
+
+        <p class="text-center text-muted small mb-4">
+            Vui lòng điền đầy đủ các thông tin có dấu
+            <span class="text-danger">*</span>
+        </p>
+
+        <form action="/Account/Register" method="post" id="registerForm">
+            @Html.AntiForgeryToken()
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">
+                        Họ và tên khách hàng <span class="text-danger">*</span>
+                    </label>
+                    <input type="text" asp-for="CustomerName"
+                           class="form-control shadow-sm"
+                           required pattern=".*\S.*"
+                           title="Họ tên không được để trống hoặc chỉ chứa khoảng trắng"
+                           placeholder="Nguyễn Văn A">
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Tên giao dịch (Liên hệ)</label>
+                    <input type="text" asp-for="ContactName"
+                           class="form-control shadow-sm"
+                           placeholder="Anh A">
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">
+                    Email (Tài khoản đăng nhập) <span class="text-danger">*</span>
+                </label>
+                <input type="email" asp-for="Email"
+                       class="form-control shadow-sm"
+                       required placeholder="email@example.com">
+                @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger small" })
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">
+                        Số điện thoại <span class="text-danger">*</span>
+                    </label>
+                    <input type="tel" asp-for="Phone"
+                           class="form-control shadow-sm"
+                           required maxlength="10"
+                           pattern="0[0-9]{9}"
+                           oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                           title="Vui lòng nhập đúng 10 chữ số"
+                           placeholder="0xxxxxxxxx">
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">
+                        Tỉnh/Thành phố <span class="text-danger">*</span>
+                    </label>
+
+                    <!-- GIỮ NGUYÊN TOÀN BỘ DANH SÁCH -->
+                    <select asp-for="Province" class="form-select shadow-sm" required>
+                        <option value="">-- Chọn Tỉnh/Thành --</option>
+                        <option value="An Giang">An Giang</option>
+                        <option value="Bà Rịa - Vũng Tàu">Bà Rịa - Vũng Tàu</option>
+                        <option value="Bắc Giang">Bắc Giang</option>
+                        <option value="Bắc Kạn">Bắc Kạn</option>
+                        <option value="Bạc Liêu">Bạc Liêu</option>
+                        <option value="Bắc Ninh">Bắc Ninh</option>
+                        <option value="Bến Tre">Bến Tre</option>
+                        <option value="Bình Định">Bình Định</option>
+                        <option value="Bình Dương">Bình Dương</option>
+                        <option value="Bình Phước">Bình Phước</option>
+                        <option value="Bình Thuận">Bình Thuận</option>
+                        <option value="Cà Mau">Cà Mau</option>
+                        <option value="Cần Thơ">Cần Thơ</option>
+                        <option value="Cao Bằng">Cao Bằng</option>
+                        <option value="Đà Nẵng">Đà Nẵng</option>
+                        <option value="Đắk Lắk">Đắk Lắk</option>
+                        <option value="Đắk Nông">Đắk Nông</option>
+                        <option value="Điện Biên">Điện Biên</option>
+                        <option value="Đồng Nai">Đồng Nai</option>
+                        <option value="Đồng Tháp">Đồng Tháp</option>
+                        <option value="Gia Lai">Gia Lai</option>
+                        <option value="Hà Giang">Hà Giang</option>
+                        <option value="Hà Nam">Hà Nam</option>
+                        <option value="Hà Nội">Hà Nội</option>
+                        <option value="Hà Tĩnh">Hà Tĩnh</option>
+                        <option value="Hải Dương">Hải Dương</option>
+                        <option value="Hải Phòng">Hải Phòng</option>
+                        <option value="Hậu Giang">Hậu Giang</option>
+                        <option value="Hòa Bình">Hòa Bình</option>
+                        <option value="Hưng Yên">Hưng Yên</option>
+                        <option value="Khánh Hòa">Khánh Hòa</option>
+                        <option value="Kiên Giang">Kiên Giang</option>
+                        <option value="Kon Tum">Kon Tum</option>
+                        <option value="Lai Châu">Lai Châu</option>
+                        <option value="Lâm Đồng">Lâm Đồng</option>
+                        <option value="Lạng Sơn">Lạng Sơn</option>
+                        <option value="Lào Cai">Lào Cai</option>
+                        <option value="Long An">Long An</option>
+                        <option value="Nam Định">Nam Định</option>
+                        <option value="Nghệ An">Nghệ An</option>
+                        <option value="Ninh Bình">Ninh Bình</option>
+                        <option value="Ninh Thuận">Ninh Thuận</option>
+                        <option value="Phú Thọ">Phú Thọ</option>
+                        <option value="Phú Yên">Phú Yên</option>
+                        <option value="Quảng Bình">Quảng Bình</option>
+                        <option value="Quảng Nam">Quảng Nam</option>
+                        <option value="Quảng Ngãi">Quảng Ngãi</option>
+                        <option value="Quảng Ninh">Quảng Ninh</option>
+                        <option value="Quảng Trị">Quảng Trị</option>
+                        <option value="Sóc Trăng">Sóc Trăng</option>
+                        <option value="Sơn La">Sơn La</option>
+                        <option value="Tây Ninh">Tây Ninh</option>
+                        <option value="Thái Bình">Thái Bình</option>
+                        <option value="Thái Nguyên">Thái Nguyên</option>
+                        <option value="Thanh Hóa">Thanh Hóa</option>
+                        <option value="Thừa Thiên Huế">Thừa Thiên Huế</option>
+                        <option value="Tiền Giang">Tiền Giang</option>
+                        <option value="TP Hồ Chí Minh">TP Hồ Chí Minh</option>
+                        <option value="Trà Vinh">Trà Vinh</option>
+                        <option value="Tuyên Quang">Tuyên Quang</option>
+                        <option value="Vĩnh Long">Vĩnh Long</option>
+                        <option value="Vĩnh Phúc">Vĩnh Phúc</option>
+                        <option value="Yên Bái">Yên Bái</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">
+                    Địa chỉ chi tiết <span class="text-danger">*</span>
+                </label>
+                <input type="text" asp-for="Address"
+                       class="form-control shadow-sm"
+                       required pattern=".*\S.*"
+                       placeholder="Số nhà, tên đường...">
+            </div>
+
+            <hr class="my-4">
+
+            <div class="row">
+                <!-- PASSWORD -->
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">
+                        Mật khẩu <span class="text-danger">*</span>
+                    </label>
+
+                    <div class="input-group shadow-sm">
+                        <input type="password" asp-for="Password"
+                               id="pass"
+                               class="form-control"
+                               required minlength="6">
+
+                        <span class="input-group-text toggle-password"
+                              onclick="togglePassword('pass', this)">
+                            <i class="fas fa-eye"></i>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- CONFIRM PASSWORD -->
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">
+                        Xác nhận mật khẩu <span class="text-danger">*</span>
+                    </label>
+
+                    <div class="input-group shadow-sm">
+                        <input type="password" name="confirmPassword"
+                               id="confirmPass"
+                               class="form-control"
+                               required>
+
+                        <span class="input-group-text toggle-password"
+                              onclick="togglePassword('confirmPass', this)">
+                            <i class="fas fa-eye"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger py-2 small shadow-sm border-0">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    @Html.ValidationSummary(true, "")
+                </div>
+            }
+
+            <div class="d-grid gap-2 mt-4">
+                <button type="submit" class="btn btn-primary btn-lg fw-bold shadow">
+                    <i class="fas fa-user-plus me-2"></i>TẠO TÀI KHOẢN
+                </button>
+            </div>
+
+            <p class="text-center mt-4 mb-0">
+                Đã có tài khoản?
+                <a href="/Account/Login" class="text-decoration-none fw-bold text-primary">
+                    Đăng nhập ngay
+                </a>
+            </p>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll('input[type="text"], input[type="email"]').forEach(input => {
+        input.addEventListener('blur', function() {
+            this.value = this.value.trim();
+        });
+    });
+
+        function togglePassword(inputId, el) {
+        const input = document.getElementById(inputId);
+
+        // Lấy icon bên trong span (fix lỗi không đổi icon)
+        const icon = el.querySelector("i");
+
+        if (!input) return;
+
+        if (input.type === "password") {
+            input.type = "text";
+            if (icon) {
+                icon.classList.remove("fa-eye");
+                icon.classList.add("fa-eye-slash");
+            }
+        } else {
+            input.type = "password";
+            if (icon) {
+                icon.classList.remove("fa-eye-slash");
+                icon.classList.add("fa-eye");
+            }
+        }
+    }
+</script>

@@ -1,0 +1,191 @@
+﻿<style>
+    /* ===== CARD ===== */
+    .sidebar-card {
+        border-radius: 18px;
+        background: #ffffff;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+        transition: all 0.3s ease;
+    }
+
+        .sidebar-card:hover {
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+        }
+
+    /* ===== HOME BUTTON ===== */
+    .sidebar-home {
+        border-radius: 12px;
+        background: linear-gradient(135deg, #0d6efd, #3b82f6);
+        color: #fff !important;
+        transition: all 0.3s ease;
+    }
+
+        .sidebar-home i {
+            color: white !important;
+        }
+
+        .sidebar-home:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(13,110,253,0.3);
+        }
+
+    /* ===== TITLE ===== */
+    .sidebar-title {
+        font-size: 0.85rem;
+        letter-spacing: 0.6px;
+        color: #555;
+        position: relative;
+    }
+
+        .sidebar-title::after {
+            content: "";
+            width: 35px;
+            height: 3px;
+            background: linear-gradient(90deg, #0d6efd, #60a5fa);
+            display: block;
+            margin-top: 6px;
+            border-radius: 10px;
+        }
+
+    /* ===== ITEM ===== */
+    .sidebar-item {
+        border-radius: 12px;
+        padding: 8px 10px;
+        margin-bottom: 4px;
+        transition: all 0.25s ease;
+        position: relative;
+        font-weight: 500;
+    }
+
+        /* hover */
+        .sidebar-item:hover {
+            background: #f1f5ff;
+            transform: translateX(6px);
+        }
+
+        /* active */
+        .sidebar-item.active {
+            background: linear-gradient(90deg, #e0edff, #f8fbff);
+            color: #0d6efd !important;
+            font-weight: 600;
+        }
+
+            /* active bar */
+            .sidebar-item.active::before {
+                content: "";
+                position: absolute;
+                left: -10px;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 4px;
+                height: 60%;
+                background: #0d6efd;
+                border-radius: 10px;
+            }
+
+        /* icon */
+        .sidebar-item i {
+            transition: 0.25s;
+            opacity: 0.6;
+        }
+
+        .sidebar-item:hover i {
+            transform: translateX(3px);
+            opacity: 1;
+            color: #0d6efd;
+        }
+
+    /* ===== ANIMATION LOAD ===== */
+    .sidebar-item {
+        opacity: 0;
+        transform: translateX(-10px);
+        animation: slideIn 0.4s ease forwards;
+    }
+
+        .sidebar-item:nth-child(1) {
+            animation-delay: 0.05s;
+        }
+
+        .sidebar-item:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .sidebar-item:nth-child(3) {
+            animation-delay: 0.15s;
+        }
+
+        .sidebar-item:nth-child(4) {
+            animation-delay: 0.2s;
+        }
+
+        .sidebar-item:nth-child(5) {
+            animation-delay: 0.25s;
+        }
+
+        .sidebar-item:nth-child(6) {
+            animation-delay: 0.3s;
+        }
+
+    @@keyframes slideIn {
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    /* ===== SCROLL (nếu nhiều category) ===== */
+    .list-group {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+        /* custom scroll */
+        .list-group::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .list-group::-webkit-scrollbar-thumb {
+            background: #dbeafe;
+            border-radius: 10px;
+        }
+</style>
+
+
+<div class="sidebar-card card border-0 sticky-top" style="top: 100px; z-index: 1020;">
+    <div class="card-body p-3">
+
+        <!-- HOME -->
+        <div class="mb-3">
+            <a href="/" class="btn w-100 text-start py-2 px-3 d-flex align-items-center sidebar-home">
+                <i class="fas fa-home me-2"></i>
+                <span class="fw-bold text-uppercase" style="font-size: 0.9rem;">Trang chủ</span>
+            </a>
+        </div>
+
+        <!-- TITLE -->
+        <div class="fw-bold mb-3 d-flex align-items-center sidebar-title">
+            <i class="fas fa-th-large me-2 text-primary"></i>
+            <span class="text-uppercase">Danh mục sản phẩm</span>
+        </div>
+
+        <div class="list-group list-group-flush">
+            @{
+                var sidebarCategories = await SV22T1020492.BusinessLayers.CatalogDataService.ListCategoriesAsync(
+                new SV22T1020492.Models.Common.PaginationSearchInput { Page = 1, PageSize = 100 });
+            }
+
+            @if (sidebarCategories?.DataItems != null)
+            {
+                foreach (var item in sidebarCategories.DataItems)
+                {
+                    var isActive = ViewBag.CategoryID == item.CategoryID;
+
+                    <a href="/Product?categoryID=@item.CategoryID&searchValue=@ViewBag.SearchValue&minPrice=@ViewBag.MinPrice&maxPrice=@ViewBag.MaxPrice"
+                       class="list-group-item list-group-item-action border-0 d-flex align-items-center sidebar-item @(isActive ? "active" : "")">
+                        <i class="fas fa-chevron-right me-3"></i>
+                        @item.CategoryName
+                    </a>
+                }
+            }
+        </div>
+    </div>
+</div>

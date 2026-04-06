@@ -1,0 +1,154 @@
+﻿@model IEnumerable<SV22T1020492.Models.Sales.OrderDetailViewInfo>
+@{
+    ViewBag.Title = "Giỏ hàng";
+    int orderID = ViewBag.OrderID ?? (Model.Any() ? Model.First().ProductID : 0);
+}
+
+<style>
+    .cart-card-main {
+        border: none;
+        border-radius: 15px;
+    }
+
+    .table-cart img {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+    .account-page-wrapper {
+        align-items: start !important;
+        padding-top: 0 !important;
+    }
+</style>
+
+<div class="card cart-card-main shadow-sm overflow-hidden w-100">
+    <div class="card-header bg-white py-3 border-bottom">
+        <h4 class="mb-0 fw-bold text-primary">
+            <i class="fa fa-shopping-basket me-2"></i>GIỎ HÀNG CỦA BẠN
+        </h4>
+    </div>
+
+    <div class="card-body p-0">
+        @if (Model != null && Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 table-cart">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4 py-3">Sản phẩm</th>
+                            <th class="text-center">Số lượng</th>
+                            <th class="text-end">Đơn giá</th>
+                            <th class="text-end">Thành tiền</th>
+                            <th class="text-center pe-4">Xóa</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center">
+                                        <img src="~/images/products/@(string.IsNullOrEmpty(item.Photo) ? "no-image.png" : item.Photo)"
+                                             class="border" onerror="this.src='/images/products/no-image.png'">
+                                        <div class="ms-3">
+                                            <div class="fw-bold text-dark">@item.ProductName</div>
+                                            <small class="text-muted">ĐVT: @item.Unit</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-center" style="width: 150px;">
+                                    <div class="input-group input-group-sm px-2">
+                                        <input type="number" class="form-control text-center rounded-3 border-primary"
+                                               value="@item.Quantity" min="1"
+                                               onchange="updateQuantity(@orderID, @item.ProductID, this.value)">
+                                    </div>
+                                </td>
+                                <td class="text-end">@item.SalePrice.ToString("N0") đ</td>
+                                <td class="text-end fw-bold text-primary">@item.TotalPrice.ToString("N0") đ</td>
+                                <td class="text-center pe-4">
+                                    @* THAY ĐỔI: Dùng Form để gửi POST tránh lỗi 405 *@
+                                    <form action="/Cart/Remove" method="post" onsubmit="return confirm('Bạn có muốn xóa sản phẩm này?')">
+                                        <input type="hidden" name="productID" value="@item.ProductID" />
+                                        <button type="submit" class="text-danger fs-5 border-0 bg-transparent p-0">
+                                            <i class="fa fa-trash-alt"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="p-4 border-top bg-light d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="text-muted">Tổng cộng thanh toán:</span>
+                    <h3 class="text-danger fw-bold mb-0">@Model.Sum(x => x.TotalPrice).ToString("N0") đ</h3>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="/" class="btn btn-outline-secondary px-4 rounded-3 fw-bold">
+                        <i class="fa fa-reply me-2"></i>MUA TIẾP
+                    </a>
+
+                    @* THAY ĐỔI: Dùng Form để gửi POST tránh lỗi 405 *@
+                    <form action="/Cart/ClearCart" method="post" onsubmit="return confirm('Xóa sạch toàn bộ giỏ hàng?')">
+                        <button type="submit" class="btn btn-light border px-4 rounded-3 text-muted">XÓA GIỎ</button>
+                    </form>
+
+                    <a href="javascript:void(0)" onclick="doCheckout()" class="btn btn-primary px-5 rounded-3 fw-bold shadow-sm">
+                        ĐẶT HÀNG NGAY <i class="fa fa-chevron-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="fa fa-shopping-cart fa-4x text-light mb-3"></i>
+                <h4 class="text-muted">Giỏ hàng của bạn đang trống</h4>
+                <p class="text-secondary">Hãy chọn những món hàng ưng ý nhé!</p>
+                <a href="/" class="btn btn-primary px-5 py-2 mt-3 rounded-3 fw-bold">QUAY LẠI MUA SẮM</a>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function updateQuantity(orderId, productId, newQty) {
+            if (newQty < 1) {
+                alert("Số lượng phải lớn hơn hoặc bằng 1");
+                location.reload();
+                return;
+            }
+            $.ajax({
+                url: '/Cart/UpdateQuantity',
+                type: 'POST',
+                data: { productID: productId, quantity: newQty },
+                success: function (response) {
+                    location.reload();
+                }
+            });
+        }
+
+        function doCheckout() {
+            if (!confirm("Xác nhận đặt hàng? Giỏ hàng sẽ được làm trống sau khi đặt thành công.")) return;
+
+            $.ajax({
+                url: '/Cart/Checkout',
+                type: 'POST',
+                success: function (response) {
+                    if (response.success) {
+                        alert("Đặt hàng thành công!");
+                        window.location.replace('/Cart/Index');
+                    } else {
+                        alert("Có lỗi xảy ra khi thực hiện đặt hàng.");
+                    }
+                },
+                error: function() { alert("Lỗi kết nối."); }
+            });
+        }
+    </script>
+}

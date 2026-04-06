@@ -1,0 +1,58 @@
+﻿@{
+    ViewBag.Title = "Xóa Ảnh Mặt hàng";
+    var productId = 123;
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-md-10 col-sm-12">
+        <div class="card card-danger">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    Xác nhận xóa ảnh mặt hàng
+                </h3>
+            </div>
+
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="bi bi-info-circle-fill me-1"></i>
+                    Bạn đang chuẩn bị xóa ảnh sau.
+                    <strong>Thao tác này không thể hoàn tác.</strong>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 text-center mb-3">
+                        <img src="~/lib/adminlte/assets/img/default-150x150.png"
+                             class="img-fluid rounded border"
+                             style="max-height:180px; object-fit:cover;"
+                             alt="Photo" />
+                    </div>
+                    <div class="col-md-8">
+                        <dl class="row mb-0">
+                            <dt class="col-sm-4">Mặt hàng</dt>
+                            <dd class="col-sm-8">Trà sữa Trân châu</dd>
+
+                            <dt class="col-sm-4">Mô tả</dt>
+                            <dd class="col-sm-8">Ảnh chính - góc nhìn từ trên</dd>
+
+                            <dt class="col-sm-4">Thứ tự</dt>
+                            <dd class="col-sm-8">1</dd>
+
+                            <dt class="col-sm-4">Trạng thái</dt>
+                            <dd class="col-sm-8"><span class="badge bg-success">Hiển thị</span></dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-footer text-end">
+                <a href="~/Product/ListPhotos/@productId" class="btn btn-secondary me-2">
+                    <i class="bi bi-arrow-left"></i> Quay lại
+                </a>
+                <button type="submit" class="btn btn-danger">
+                    <i class="bi bi-trash-fill"></i> Xác nhận xóa
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

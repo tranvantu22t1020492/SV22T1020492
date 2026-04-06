@@ -1,0 +1,236 @@
+﻿<style>
+    .footer {
+        background: linear-gradient(270deg, #0d6efd, #1e40af, #2563eb);
+        background-size: 400% 400%;
+        color: #fff;
+        padding: 50px 0 20px;
+        font-family: 'Segoe UI', sans-serif;
+        position: relative;
+        overflow: hidden;
+        animation: gradientMove 12s ease infinite;
+    }
+
+    /* FIX RAZOR */
+    @@keyframes gradientMove {
+        0% {
+            background-position: 0% 50%;
+        }
+
+        50% {
+            background-position: 100% 50%;
+        }
+
+        100% {
+            background-position: 0% 50%;
+        }
+    }
+
+    /* ánh sáng chạy */
+    .footer::before {
+        content: "";
+        position: absolute;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.15), transparent 70%);
+        animation: lightMove 10s linear infinite;
+    }
+
+    @@keyframes lightMove {
+        0% {
+            transform: translate(-50%, -50%);
+        }
+
+        50% {
+            transform: translate(50%, 50%);
+        }
+
+        100% {
+            transform: translate(-50%, -50%);
+        }
+    }
+
+    /* fade in */
+    .footer .row > div {
+        animation: fadeUp 0.6s ease forwards;
+        opacity: 0;
+    }
+
+        .footer .row > div:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .footer .row > div:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .footer .row > div:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .footer .row > div:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+
+    @@keyframes fadeUp {
+        from {
+            transform: translateY(20px);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    /* LOGO */
+    .footer-logo {
+        font-size: 26px;
+        font-weight: bold;
+        margin-bottom: 10px;
+        letter-spacing: 1px;
+    }
+
+    /* TITLE */
+    .footer-title {
+        font-size: 16px;
+        margin-bottom: 15px;
+        font-weight: 600;
+        position: relative;
+    }
+
+        .footer-title::after {
+            content: "";
+            width: 50px;
+            height: 3px;
+            background: #fff;
+            display: block;
+            margin-top: 6px;
+            border-radius: 10px;
+        }
+
+    /* LINKS */
+    .footer-links a {
+        text-decoration: none;
+        color: #e0e7ff;
+        font-size: 14px;
+        display: inline-block;
+        transition: all 0.3s ease;
+    }
+
+        .footer-links a:hover {
+            color: #fff;
+            transform: translateX(8px) scale(1.05);
+            text-shadow: 0 0 8px rgba(255,255,255,0.6);
+        }
+
+    /* SOCIAL */
+    .social a {
+        display: inline-block;
+        width: 40px;
+        height: 40px;
+        line-height: 40px;
+        text-align: center;
+        margin-right: 10px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.2);
+        color: #fff;
+        position: relative;
+        overflow: hidden;
+        transition: 0.3s;
+    }
+
+        .social a::before {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.6), transparent 70%);
+            transform: scale(0);
+            transition: 0.4s;
+        }
+
+        .social a:hover::before {
+            transform: scale(2);
+        }
+
+        .social a:hover {
+            transform: translateY(-5px) scale(1.1);
+            background: #fff;
+            color: #0d6efd;
+        }
+
+    /* CONTACT */
+    .footer-contact {
+        font-size: 14px;
+        margin-bottom: 6px;
+        transition: 0.3s;
+    }
+
+        .footer-contact:hover {
+            transform: translateX(5px);
+        }
+
+    /* FOOTER BOTTOM */
+    .footer-bottom {
+        border-top: 1px solid rgba(255,255,255,0.3);
+        margin-top: 30px;
+        padding-top: 15px;
+        font-size: 13px;
+        opacity: 0.9;
+        animation: fadeUp 1s ease;
+    }
+</style>
+
+<footer class="footer mt-5">
+    <div class="container">
+        <div class="row gy-4">
+
+            <!-- Logo -->
+            <div class="col-lg-4 col-md-6">
+                <div class="footer-logo">LB4 SHOP</div>
+                <p class="footer-text">
+                    Nền tảng mua sắm hiện đại, nhanh chóng và tiện lợi.
+                </p>
+            </div>
+
+            <!-- Menu -->
+            <div class="col-lg-2 col-md-6">
+                <div class="footer-title">Menu</div>
+                <ul class="footer-links">
+                    <li><a href="#">Trang chủ</a></li>
+                    <li><a href="#">Sản phẩm</a></li>
+                    <li><a href="#">Giỏ hàng</a></li>
+                </ul>
+            </div>
+
+            <!-- Hỗ trợ -->
+            <div class="col-lg-3 col-md-6">
+                <div class="footer-title">Hỗ trợ</div>
+                <ul class="footer-links">
+                    <li><a href="#">Chính sách</a></li>
+                    <li><a href="#">Điều khoản</a></li>
+                    <li><a href="#">Hướng dẫn</a></li>
+                </ul>
+            </div>
+
+            <!-- Liên hệ -->
+            <div class="col-lg-3 col-md-6">
+                <div class="footer-title">Liên hệ</div>
+                <div class="footer-contact">📧 support@lb4shop.com</div>
+                <div class="footer-contact">📞 0123 456 789</div>
+
+                <div class="social mt-2">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-github"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="footer-bottom text-center">
+            © 2026 <strong>SV22T1020492</strong> | Hệ thống bán hàng
+        </div>
+    </div>
+</footer>

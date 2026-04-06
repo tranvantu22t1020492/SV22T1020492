@@ -1,0 +1,138 @@
+﻿@model SV22T1020492.Models.Partner.AccountCustomer
+@{
+    Layout = "_Layout";
+    ViewBag.Title = "Đăng nhập";
+}
+
+<style>
+    /* ===== WRAPPER ===== */
+    .login-wrapper {
+        width: 100%;
+        max-width: 450px;
+        margin: auto;
+        animation: fadeIn 0.5s ease;
+    }
+
+    /* FIX RAZOR */
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* ===== CARD ===== */
+    .login-card {
+        border-radius: 20px;
+        background: rgba(255,255,255,0.95);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+    }
+
+    /* ===== TITLE ===== */
+    .login-title {
+        font-weight: bold;
+        letter-spacing: 1px;
+        color: #0d6efd;
+    }
+
+    /* ===== INPUT ===== */
+    .form-control {
+        border-radius: 12px;
+        padding: 12px;
+        transition: 0.25s;
+        border: 1px solid #ddd;
+    }
+
+        .form-control:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 3px rgba(13,110,253,0.15);
+        }
+
+    /* ===== BUTTON ===== */
+    .btn-primary {
+        border-radius: 14px;
+        background: linear-gradient(135deg, #0d6efd, #3b82f6);
+        border: none;
+        transition: 0.3s;
+    }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(13,110,253,0.4);
+        }
+
+    /* ===== LINK ===== */
+    a {
+        transition: 0.25s;
+    }
+
+        a:hover {
+            color: #0d6efd;
+        }
+
+    /* ===== ALERT ===== */
+    .alert {
+        border-radius: 12px;
+    }
+</style>
+
+<div class="login-wrapper">
+    <div class="card login-card border-0 p-4">
+
+        <h3 class="text-center login-title mb-4">ĐĂNG NHẬP</h3>
+
+        <form action="/Account/Login" method="post">
+            @Html.AntiForgeryToken()
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger small">
+                    @Html.ValidationSummary(true, "")
+                </div>
+            }
+
+            <!-- EMAIL -->
+            <div class="mb-3">
+                <label class="form-label fw-bold">Email</label>
+                <input type="email"
+                       name="email"
+                       class="form-control"
+                       placeholder="example@gmail.com"
+                       required autofocus>
+            </div>
+
+            <!-- PASSWORD -->
+            <div class="mb-3">
+                <label class="form-label fw-bold">Mật khẩu</label>
+                <input type="password"
+                       name="password"
+                       class="form-control"
+                       placeholder="******"
+                       required>
+            </div>
+
+            <!-- BUTTON -->
+            <div class="d-grid gap-2 mt-4">
+                <button type="submit"
+                        class="btn btn-primary btn-lg fw-bold">
+                    Đăng nhập
+                </button>
+            </div>
+
+            <!-- LINK -->
+            <div class="text-center mt-3">
+                <span>Chưa có tài khoản? </span>
+                <a href="/Account/Register" class="fw-bold text-decoration-none">
+                    Đăng ký ngay
+                </a>
+            </div>
+
+        </form>
+    </div>
+</div>

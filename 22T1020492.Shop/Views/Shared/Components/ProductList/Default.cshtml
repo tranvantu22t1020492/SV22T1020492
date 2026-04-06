@@ -1,0 +1,132 @@
+﻿@model SV22T1020492.Models.Common.PagedResult<SV22T1020492.Models.Catalog.Product>
+
+<style>
+    /* Giữ nguyên khung sản phẩm đồng đều của bạn */
+    .product-card {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        background: #fff;
+        border: 1px solid #eee;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .card-img-container {
+        height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px;
+    }
+
+    .card-img-top {
+        max-height: 100%;
+        max-width: 100%;
+        object-fit: contain;
+    }
+
+    .card-body {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        padding: 15px;
+        text-align: center;
+    }
+
+    .card-title {
+        font-size: 14px;
+        font-weight: bold;
+        height: 40px;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        margin-bottom: 10px;
+    }
+
+    .product-price {
+        color: #d9534f;
+        font-weight: bold;
+        margin-top: auto;
+        margin-bottom: 15px;
+    }
+</style>
+
+<div class="row g-3">
+    @foreach (var item in Model.DataItems)
+    {
+        <div class="col-md-3">
+            <div class="product-card shadow-sm border p-3 bg-white">
+                <a href="~/Product/Details/@item.ProductID" class="text-decoration-none">
+                    <div class="card-img-container">
+                        <img src="~/images/products/@(string.IsNullOrEmpty(item.Photo) || item.Photo == "nophoto" ? "no-photo.png" : item.Photo)"
+                             class="card-img-top" onerror="this.src='/images/products/no-photo.png'">
+                    </div>
+                </a>
+                <div class="card-body">
+                    <a href="~/Product/Details/@item.ProductID" class="text-decoration-none text-dark">
+                        <h6 class="card-title">@item.ProductName</h6>
+                    </a>
+                    <p class="product-price">@item.Price.ToString("N0") đ</p>
+                    <div class="d-grid gap-2">
+                        <a href="~/Product/Details/@item.ProductID" class="btn btn-sm btn-outline-primary rounded-pill">
+                            <i class="fas fa-eye me-1"></i>Xem chi tiết
+                        </a>
+                        @* Nút gọi AJAX lưu Database (AddToCart) *@
+                        <button type="button" onclick="handleAddToCartDB(@item.ProductID, @item.Price)" class="btn btn-sm btn-success rounded-pill">
+                            <i class="fas fa-cart-plus me-1"></i>Thêm vào giỏ hàng
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@* PHÂN TRANG: GIỮ NGUYÊN 100% THAM SỐ CŨ CỦA BẠN (Tìm kiếm, Giá) *@
+@if (Model.PageCount > 1)
+{
+    <nav class="mt-5">
+        <ul class="pagination justify-content-center">
+            @if (Model.Page > 3)
+            {
+                <li class="page-item"><a class="page-link" href="@Url.Action("Index", "Product", new { page = 1, searchValue = ViewBag.CurrentSearchValue, categoryID = ViewBag.CurrentCategoryID, minPrice = ViewBag.CurrentMinPrice, maxPrice = ViewBag.CurrentMaxPrice })">1</a></li>
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+            }
+            @for (int p = Math.Max(1, Model.Page - 2); p <= Math.Min(Model.PageCount, Model.Page + 2); p++)
+            {
+                <li class="page-item @(p == Model.Page ? "active" : "")">
+                    <a class="page-link" href="@Url.Action("Index", "Product", new { page = p, searchValue = ViewBag.CurrentSearchValue, categoryID = ViewBag.CurrentCategoryID, minPrice = ViewBag.CurrentMinPrice, maxPrice = ViewBag.CurrentMaxPrice })">@p</a>
+                </li>
+            }
+            @if (Model.Page < Model.PageCount - 2)
+            {
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+                <li class="page-item"><a class="page-link" href="@Url.Action("Index", "Product", new { page = Model.PageCount, searchValue = ViewBag.CurrentSearchValue, categoryID = ViewBag.CurrentCategoryID, minPrice = ViewBag.CurrentMinPrice, maxPrice = ViewBag.CurrentMaxPrice })">@Model.PageCount</a></li>
+            }
+        </ul>
+    </nav>
+}
+
+<script>
+    function handleAddToCartDB(pId, price) {
+        var isLogged = $('#globalAuthStatus').val();
+        if (isLogged !== 'true') {
+            window.location.href = '/Account/Login';
+            return;
+        }
+
+        $.ajax({
+            url: '/Cart/AddToCart',
+            type: 'POST',
+            data: { productID: pId, quantity: 1, salePrice: price },
+            success: function () {
+                // Nhảy số trên Header ngay lập tức, không dùng alert
+                if (typeof updateCartBadge === "function") {
+                    updateCartBadge();
+                }
+            }
+        });
+    }
+</script>

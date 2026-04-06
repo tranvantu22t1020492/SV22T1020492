@@ -1,0 +1,27 @@
+﻿@{
+    ViewBag.Title = "Không có quyền truy cập";
+    Layout = "_Layout";
+}
+
+<div class="row justify-content-center mt-4">
+    <div class="col-md-6 col-12">
+        <div class="alert alert-warning d-flex align-items-start">
+            <i class="bi bi-exclamation-triangle-fill fs-3 me-3 mt-1"></i>
+            <div>
+                <h5 class="alert-heading mb-1">Truy cập bị từ chối</h5>
+                <p class="mb-2">
+                    Bạn không có quyền truy cập vào trang này.
+                    Vui lòng liên hệ quản trị viên nếu bạn cho rằng đây là nhầm lẫn.
+                </p>
+                <a href="~/" class="btn btn-sm btn-primary me-2">
+                    <i class="bi bi-house me-1"></i>
+                    Về trang chủ
+                </a>
+                <a href="~/Account/Logout" class="btn btn-sm btn-secondary">
+                    <i class="bi bi-box-arrow-right me-1"></i>
+                    Đăng xuất
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

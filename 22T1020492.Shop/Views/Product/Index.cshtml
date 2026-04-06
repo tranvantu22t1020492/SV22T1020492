@@ -1,0 +1,102 @@
+﻿@{
+    ViewData["Title"] = "Tìm kiếm sản phẩm";
+}
+
+<style>
+    /* ===== HEADER TITLE ===== */
+    .search-header {
+        background: linear-gradient(135deg, #e0edff, #f8fbff);
+        border-radius: 16px;
+        padding: 20px 25px;
+        margin-bottom: 20px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        animation: fadeDown 0.4s ease;
+    }
+
+    /* FIX RAZOR */
+    @@keyframes fadeDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* TITLE */
+    .search-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #0d6efd;
+    }
+
+    /* highlight text */
+    .search-keyword {
+        color: #ef4444;
+        font-weight: bold;
+    }
+
+    /* underline đẹp */
+    .search-header hr {
+        border: none;
+        height: 3px;
+        width: 60px;
+        background: linear-gradient(90deg, #0d6efd, #60a5fa);
+        border-radius: 10px;
+        margin-top: 10px;
+    }
+
+    /* ===== PRODUCT LIST EFFECT ===== */
+    .product-list-wrapper {
+        animation: fadeUp 0.5s ease;
+    }
+
+    @@keyframes fadeUp {
+        from {
+            opacity: 0;
+            transform: translateY(15px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<div class="container mt-4">
+
+    <!-- HEADER -->
+    <div class="search-header">
+        <div class="search-title text-uppercase">
+            @if (!string.IsNullOrEmpty(ViewBag.SearchValue))
+            {
+                <span>
+                    Kết quả tìm kiếm cho:
+                    <span class="search-keyword">"@ViewBag.SearchValue"</span>
+                </span>
+            }
+            else
+            {
+                <span>Tất cả sản phẩm</span>
+            }
+        </div>
+        <hr />
+    </div>
+
+    <!-- PRODUCT LIST -->
+    <div class="product-list-wrapper">
+        @await Component.InvokeAsync("ProductList", new
+            {
+                searchValue = ViewBag.SearchValue,
+                categoryID = ViewBag.CategoryID,
+                minPrice = ViewBag.MinPrice,
+                maxPrice = ViewBag.MaxPrice,
+                page = ViewBag.Page
+            })
+    </div>
+
+</div>

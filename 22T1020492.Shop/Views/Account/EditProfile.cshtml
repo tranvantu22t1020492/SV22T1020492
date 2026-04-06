@@ -1,0 +1,170 @@
+﻿@model SV22T1020492.Models.Partner.AccountCustomer
+@{
+    ViewBag.Title = "Chỉnh sửa hồ sơ";
+    Layout = "_Layout";
+}
+
+@* --- CẬP NHẬT CSS ĐỂ ẨN SIDEBAR VÀ THANH TÌM KIẾM --- *@
+<style>
+    /* 1. Ẩn Sidebar hoàn toàn */
+    aside, .col-lg-3, .sidebar-wrapper, #sidebar {
+        display: none !important;
+    }
+
+    /* 2. Ẩn Thanh tìm kiếm trên Header (Nhắm vào khối nằm giữa Logo và Cart/Account) */
+    /* Cách 1: Nhắm vào form tìm kiếm */
+    header form[action*="/Product/Search"],
+    header .input-group:has(input[name="searchValue"]),
+    .header-search-bar {
+        display: none !important;
+    }
+
+    /* Cách 2: Nhắm vào cột chứa thanh tìm kiếm trong cấu hình Grid của Bootstrap */
+    header .container > .row > div:nth-child(2) {
+        display: none !important;
+    }
+
+    /* 3. Mở rộng vùng nội dung chính ra toàn màn hình */
+    .col-lg-9 {
+        width: 100% !important;
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+    }
+
+    .edit-profile-container {
+        background-color: #f8f9fa;
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+    }
+
+    .card-header.bg-primary {
+        background: linear-gradient(45deg, #007bff, #0056b3) !important;
+    }
+</style>
+
+<div class="edit-profile-container py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-10 col-lg-8">
+
+                @* Nút quay lại *@
+                <div class="mb-3">
+                    <a href="/Account/Profile" class="text-decoration-none text-secondary small fw-bold">
+                        <i class="fas fa-chevron-left me-1"></i> QUAY LẠI HỒ SƠ
+                    </a>
+                </div>
+
+                <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                    @* Header Card *@
+                    <div class="card-header bg-primary py-4 text-center border-0">
+                        <div class="bg-white d-inline-flex align-items-center justify-content-center rounded-circle mb-2 shadow-sm" style="width: 60px; height: 60px;">
+                            <i class="fas fa-user-edit fa-lg text-primary"></i>
+                        </div>
+                        <h4 class="text-white fw-bold mb-0 text-uppercase">Chỉnh sửa hồ sơ cá nhân</h4>
+                        <p class="text-white-50 small mb-0 mt-2">Vui lòng cập nhật chính xác các thông tin có dấu <span class="text-warning">*</span></p>
+                    </div>
+
+                    <div class="card-body p-4 p-md-5 bg-white">
+                        <form action="/Account/EditProfile" method="post" id="editProfileForm">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="CustomerID" value="@Model.CustomerID" />
+
+                            <div class="row g-4">
+                                @* Họ tên *@
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold small text-muted">HỌ TÊN KHÁCH HÀNG <span class="text-danger">*</span></label>
+                                    <input type="text" name="CustomerName" class="form-control border-0 bg-light py-2"
+                                           value="@Model.CustomerName" required pattern=".*\S.*"
+                                           title="Không được để trống hoặc chỉ chứa dấu cách">
+                                </div>
+
+                                @* Tên liên hệ *@
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold small text-muted">TÊN GIAO DỊCH (LIÊN HỆ) <span class="text-danger">*</span></label>
+                                    <input type="text" name="ContactName" class="form-control border-0 bg-light py-2"
+                                           value="@Model.ContactName" required pattern=".*\S.*">
+                                </div>
+
+                                @* Email - Khóa không cho sửa *@
+                                <div class="col-12">
+                                    <label class="form-label fw-bold small text-muted">EMAIL (TÀI KHOẢN ĐĂNG NHẬP)</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text border-0 bg-secondary bg-opacity-10"><i class="fas fa-lock text-muted"></i></span>
+                                        <input type="email" class="form-control border-0 bg-secondary bg-opacity-10 py-2" value="@Model.Email" readonly disabled>
+                                    </div>
+                                    <input type="hidden" name="Email" value="@Model.Email" />
+                                    <div class="form-text small">Email dùng làm tên đăng nhập nên không thể thay đổi.</div>
+                                </div>
+
+                                @* Số điện thoại *@
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold small text-muted">SỐ ĐIỆN THOẠI <span class="text-danger">*</span></label>
+                                    <input type="tel" name="Phone" class="form-control border-0 bg-light py-2"
+                                           value="@Model.Phone" required maxlength="10" pattern="0[0-9]{9}"
+                                           oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+                                           title="Vui lòng nhập đúng 10 chữ số bắt đầu bằng số 0">
+                                </div>
+
+                                @* Tỉnh thành *@
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold small text-muted">TỈNH / THÀNH PHỐ <span class="text-danger">*</span></label>
+                                    <select name="Province" class="form-select border-0 bg-light py-2" required>
+                                        <option value="">-- Chọn Tỉnh/Thành --</option>
+                                        @{
+                                            var provinces = new string[] {
+                                        "An Giang", "Bà Rịa - Vũng Tàu", "Bắc Giang", "Bắc Kạn", "Bạc Liêu", "Bắc Ninh", "Bến Tre", "Bình Định", "Bình Dương", "Bình Phước", "Bình Thuận", "Cà Mau", "Cần Thơ", "Cao Bằng", "Đà Nẵng", "Đắk Lắk", "Đắk Nông", "Điện Biên", "Đồng Nai", "Đồng Tháp", "Gia Lai", "Hà Giang", "Hà Nam", "Hà Nội", "Hà Tĩnh", "Hải Dương", "Hải Phòng", "Hậu Giang", "Hòa Bình", "Hưng Yên", "Khánh Hòa", "Kiên Giang", "Kon Tum", "Lai Châu", "Lâm Đồng", "Lạng Sơn", "Lào Cai", "Long An", "Nam Định", "Nghệ An", "Ninh Bình", "Ninh Thuận", "Phú Thọ", "Phú Yên", "Quảng Bình", "Quảng Nam", "Quảng Ngãi", "Quảng Ninh", "Quảng Trị", "Sóc Trăng", "Sơn La", "Tây Ninh", "Thái Bình", "Thái Nguyên", "Thanh Hóa", "Thừa Thiên Huế", "Tiền Giang", "TP Hồ Chí Minh", "Trà Vinh", "Tuyên Quang", "Vĩnh Long", "Vĩnh Phúc", "Yên Bái"
+                                                                        };
+                                            foreach (var p in provinces)
+                                            {
+                                                if (p == Model.Province)
+                                                {
+                                                    <option value="@p" selected>@p</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="@p">@p</option>
+                                                }
+                                            }
+                                        }
+                                    </select>
+                                </div>
+
+                                @* Địa chỉ chi tiết *@
+                                <div class="col-12">
+                                    <label class="form-label fw-bold small text-muted">ĐỊA CHỈ CHI TIẾT <span class="text-danger">*</span></label>
+                                    <textarea name="Address" class="form-control border-0 bg-light" rows="3"
+                                              required>@Model.Address</textarea>
+                                </div>
+                            </div>
+
+                            @if (!ViewData.ModelState.IsValid)
+                            {
+                                <div class="alert alert-danger mt-4 py-2 small shadow-sm border-0">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    @Html.ValidationSummary(true, "")
+                                </div>
+                            }
+
+                            <div class="mt-5 d-flex gap-3 justify-content-end">
+                                <a href="/Account/Profile" class="btn btn-light px-4 rounded-3 border fw-bold text-muted">HỦY BỎ</a>
+                                <button type="submit" class="btn btn-primary px-5 rounded-3 fw-bold shadow-sm">
+                                    <i class="fas fa-save me-2"></i>LƯU THAY ĐỔI
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Cắt khoảng trắng thừa khi người dùng nhập liệu xong
+    document.querySelectorAll('input[type="text"], textarea').forEach(input => {
+        input.addEventListener('blur', function() {
+            this.value = this.value.trim();
+        });
+    });
+</script>

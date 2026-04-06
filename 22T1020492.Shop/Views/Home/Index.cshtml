@@ -1,0 +1,225 @@
+﻿@{
+    ViewData["Title"] = "Trang chủ - SV22T1020492.Shop";
+}
+
+<style>
+    /* ===== HERO ===== */
+    .banner-gradient {
+        height: 340px;
+        border-radius: 20px;
+        position: relative;
+        overflow: hidden;
+    }
+
+        /* hiệu ứng ánh sáng nhẹ */
+        .banner-gradient::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.15), transparent 60%);
+        }
+
+    /* chữ banner */
+    .carousel-caption {
+        animation: fadeUp 0.8s ease;
+    }
+
+    /* FIX RAZOR */
+    @@keyframes fadeUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* nút banner */
+    .carousel-caption .btn {
+        transition: 0.3s;
+    }
+
+        .carousel-caption .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+    /* ===== CAROUSEL ===== */
+    .carousel-item {
+        transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    #homeHeroCarousel {
+        border-radius: 20px !important;
+    }
+
+    /* control */
+    .custom-control {
+        background-color: rgba(0,0,0,0.2);
+        border-radius: 50%;
+        padding: 1.5rem;
+        background-size: 50%;
+        transition: 0.3s;
+    }
+
+        .custom-control:hover {
+            background-color: rgba(0,0,0,0.5);
+            transform: scale(1.1);
+        }
+
+    /* ===== TITLE ===== */
+    .section-title {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+        animation: fadeLeft 0.6s ease;
+    }
+
+    .section-title-bar {
+        width: 6px;
+        height: 30px;
+        background: linear-gradient(180deg, #0d6efd, #3b82f6);
+        border-radius: 10px;
+        margin-right: 10px;
+    }
+
+    .section-title h4 {
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #1e293b;
+    }
+
+    /* animation */
+    @@keyframes fadeLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    /* ===== PRODUCT LIST ===== */
+    .product-wrapper {
+        animation: fadeUp 0.8s ease;
+    }
+
+    /* ===== BUTTON ===== */
+    .btn-outline-primary {
+        border-radius: 999px;
+        transition: 0.3s;
+    }
+
+        .btn-outline-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(13,110,253,0.3);
+        }
+
+    /* ===== INDICATORS ===== */
+    .carousel-indicators button {
+        opacity: 0.6;
+        transition: 0.3s;
+    }
+
+    .carousel-indicators .active {
+        opacity: 1;
+        transform: scale(1.2);
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @@media (max-width: 768px) {
+        .banner-gradient {
+            height: 220px;
+        }
+
+        .carousel-caption {
+            bottom: 10px;
+        }
+
+            .carousel-caption h2 {
+                font-size: 1.2rem;
+            }
+    }
+</style>
+
+
+<div class="container-fluid px-0">
+
+    <!-- HERO -->
+    <div id="homeHeroCarousel" class="carousel slide mb-5 shadow-sm overflow-hidden" data-bs-ride="carousel">
+
+        <div class="carousel-indicators">
+            <button type="button" data-bs-target="#homeHeroCarousel" data-bs-slide-to="0" class="active rounded-circle"></button>
+            <button type="button" data-bs-target="#homeHeroCarousel" data-bs-slide-to="1" class="rounded-circle"></button>
+            <button type="button" data-bs-target="#homeHeroCarousel" data-bs-slide-to="2" class="rounded-circle"></button>
+        </div>
+
+        <div class="carousel-inner">
+
+            <!-- SLIDE 1 -->
+            <div class="carousel-item active" data-bs-interval="3000">
+                <div class="d-block w-100 banner-gradient" style="background: linear-gradient(135deg, #1e3c72, #2a5298);">
+                    <div class="carousel-caption text-start pb-5">
+                        <h2 class="display-5 fw-bold text-warning">LB4 SHOP ONLINE</h2>
+                        <p class="fs-5">Hệ thống cung cấp mặt hàng chất lượng cao</p>
+                        <button class="btn btn-light fw-bold rounded-pill px-4">Mua Ngay</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 2 -->
+            <div class="carousel-item" data-bs-interval="3000">
+                <div class="d-block w-100 banner-gradient" style="background: linear-gradient(135deg, #eb3349, #f45c43);">
+                    <div class="carousel-caption text-start pb-5">
+                        <h2 class="display-5 fw-bold text-white">SIÊU SALE</h2>
+                        <p class="fs-5">Ưu đãi lên đến 50%</p>
+                        <button class="btn btn-outline-light fw-bold rounded-pill px-4">Xem ngay</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 3 -->
+            <div class="carousel-item" data-bs-interval="3000">
+                <div class="d-block w-100 banner-gradient" style="background: linear-gradient(135deg, #11998e, #38ef7d);">
+                    <div class="carousel-caption text-start pb-5">
+                        <h2 class="display-5 fw-bold text-white">GIAO HÀNG NHANH</h2>
+                        <p class="fs-5">Miễn phí từ 200k</p>
+                        <button class="btn btn-dark fw-bold rounded-pill px-4">Tìm hiểu</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- CONTROL -->
+        <button class="carousel-control-prev" type="button" data-bs-target="#homeHeroCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon custom-control"></span>
+        </button>
+
+        <button class="carousel-control-next" type="button" data-bs-target="#homeHeroCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon custom-control"></span>
+        </button>
+    </div>
+
+    <!-- TITLE -->
+    <div id="new-products" class="section-title">
+        <div class="section-title-bar"></div>
+        <h4>Sản phẩm mới nhất</h4>
+    </div>
+
+    <!-- PRODUCT -->
+    <div class="product-wrapper">
+        @await Component.InvokeAsync("ProductList", new
+            {
+                page = ViewBag.Page ?? 1,
+                pageSize = 12
+            })
+    </div>
+</div>
